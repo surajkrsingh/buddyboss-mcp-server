@@ -163,27 +163,6 @@ Common issues and fixes are covered in the [Setup Guide](docs/setup-guide.md#tro
 
 ---
 
-## Why BuddyBoss MCP Server?
-
-Most MCP servers for WordPress run as **separate Node.js processes** that make external HTTP calls back to your site. This plugin takes a fundamentally different approach — it runs **natively inside WordPress**.
-
-| | External MCP Server (Node.js) | BuddyBoss MCP Server (This Plugin) |
-|--|-------------------------------|-------------------------------------|
-| **Installation** | Clone repo, `npm install`, configure `.env` | Upload ZIP, activate — done |
-| **Runtime** | Separate Node.js process alongside WordPress | Runs inside WordPress itself |
-| **API calls** | External HTTP requests to `wp-json/` (network latency + overhead) | Internal `rest_do_request()` — zero HTTP overhead |
-| **Authentication** | Environment variables, custom token management | WordPress Application Passwords (built-in, revocable) |
-| **Permissions** | Must replicate WordPress permission checks | Inherits WordPress + BuddyBoss permissions automatically |
-| **Dependencies** | `@modelcontextprotocol/sdk`, `node-fetch`, Node.js runtime | None — pure PHP, no external dependencies |
-| **Server management** | Must keep Node.js process running (PM2, systemd, etc.) | Always available when WordPress is running |
-| **Updates** | Manual git pull + npm install | Standard WordPress plugin update flow |
-| **Tools** | 36 (BuddyPress only) | 65 (BuddyBoss-specific features included) |
-| **Extensibility** | Write JavaScript, restart server | WordPress filter hook — no restart needed |
-
-**The key advantage:** because the plugin lives inside WordPress, every tool call goes through the same validation, sanitization, and permission checks that BuddyBoss uses for its own REST API. There's no separate process to manage, no external HTTP calls to secure, and no permissions to duplicate.
-
----
-
 ## License
 
 GPLv2 or later — [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
