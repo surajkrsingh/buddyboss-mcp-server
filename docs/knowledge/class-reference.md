@@ -76,27 +76,24 @@ $registry = $plugin->get_tool_registry();
 
 **File:** `includes/class-rest-controller.php`
 
-**Purpose:** WordPress REST API controller exposing `/wp-json/buddyboss-mcp/v1/mcp` endpoint with authentication and rate limiting.
+**Purpose:** WordPress REST API controller exposing `/wp-json/buddyboss-mcp/v1/mcp` endpoint with authentication and authorization.
 
 **Key Responsibilities:**
 - Registers REST routes (`POST` and `GET` on `/buddyboss-mcp/v1/mcp`)
 - Handles authentication via WordPress Application Passwords
 - Enforces `manage_options` capability requirement
-- Implements rate limiting (60 requests per 60 seconds per user)
 - Routes POST requests to MCP server
 - Provides health check via GET requests
 
 **Key Methods:**
 - `register_routes()` — Registers REST API endpoints
 - `check_permissions($request)` — Validates authentication and capabilities
-- `check_rate_limit()` — Enforces per-user rate limits via transients
 - `handle_post_request($request)` — Processes JSON-RPC messages
 - `handle_get_request($request)` — Returns server status
 
 **Security Features:**
 - Application Password authentication required
 - Administrator-level permissions (`manage_options`)
-- Rate limiting with customizable thresholds via `bbmcp_rate_limit` filter
 - Input sanitization at protocol layer
 
 ---
@@ -438,7 +435,7 @@ Internal_REST_Client (utility, used by Tool_Base)
 IDE/Client
     ↓ HTTP POST (JSON-RPC 2.0)
 REST_Controller::handle_post_request()
-    ↓ check_permissions() + rate limiting
+    ↓ check_permissions()
 MCP_Server::handle_request()
     ↓ parse JSON, validate protocol
 MCP_Server::dispatch_method()
@@ -500,11 +497,6 @@ See `docs/extending-tools.md` for complete guide.
 - Requires `manage_options` capability (administrator-level)
 - Validated by `REST_Controller::check_permissions()`
 
-**Rate Limiting:**
-- 60 requests per 60-second window per user (customizable via filter)
-- Tracked using WordPress transients
-- Returns HTTP 429 when exceeded
-
 **Input Validation:**
 - Required parameters validated via `Tool_Base::validate_required()`
 - Strings truncated to 1000 chars max
@@ -528,8 +520,7 @@ See `docs/extending-tools.md` for complete guide.
 1. **Zero HTTP Overhead** — `rest_do_request()` bypasses HTTP layer entirely
 2. **Singleton Pattern** — Plugin instance created once
 3. **Registry Caching** — Tools loaded and indexed once at initialization
-4. **Transient-Based Rate Limiting** — Minimal database impact
-5. **Lazy Loading** — Tool providers only instantiated when needed
+4. **Lazy Loading** — Tool providers only instantiated when needed
 
 ---
 
@@ -549,8 +540,6 @@ Defined in `buddyboss-mcp-server.php`:
 
 **Filters:**
 - `bbmcp_tool_providers` — Add custom tool providers
-- `bbmcp_rate_limit` — Customize rate limit threshold
-
 **Actions:**
 - `rest_api_init` — REST route registration
 - `admin_menu` — Admin page registration
