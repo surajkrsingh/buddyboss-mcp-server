@@ -10,7 +10,7 @@ The Model Context Protocol (MCP) uses JSON-RPC 2.0 over HTTP. Our implementation
 
 **Endpoint:** `POST /wp-json/buddyboss-mcp/v1/mcp`
 
-**Spec version:** `2024-11-05` (stable)
+**Spec version:** `2025-03-26` (stable — Streamable HTTP)
 
 ---
 
@@ -88,7 +88,7 @@ Server returns HTTP 202 Accepted with empty body for notifications.
   "jsonrpc": "2.0",
   "method": "initialize",
   "params": {
-    "protocolVersion": "2024-11-05",
+    "protocolVersion": "2025-03-26",
     "capabilities": {},
     "clientInfo": {
       "name": "claude-desktop",
@@ -105,7 +105,7 @@ Server returns HTTP 202 Accepted with empty body for notifications.
   "jsonrpc": "2.0",
   "id": 1,
   "result": {
-    "protocolVersion": "2024-11-05",
+    "protocolVersion": "2025-03-26",
     "capabilities": {
       "tools": {}
     },
@@ -507,7 +507,7 @@ npx @modelcontextprotocol/inspector https://yoursite.com/wp-json/buddyboss-mcp/v
 # 1. Initialize
 curl -s -X POST $URL -u "$USER:$PASS" \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}},"id":1}'
 
 # 2. Initialized notification
 curl -s -X POST $URL -u "$USER:$PASS" \
@@ -529,8 +529,8 @@ curl -s -X POST $URL -u "$USER:$PASS" \
 
 ## References
 
-- [MCP Specification (2024-11-05)](https://spec.modelcontextprotocol.io/specification/2024-11-05/)
-- [MCP Transports](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports)
+- [MCP Specification (2025-03-26)](https://spec.modelcontextprotocol.io/specification/2025-03-26/)
+- [MCP Transports — Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports)
 - [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
 - [BuddyPress MCP Reference](https://github.com/vapvarun/buddypress-mcp)
 - [WordPress Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/)

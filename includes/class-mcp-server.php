@@ -125,7 +125,7 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 		protected function handle_initialize( $params, $id ) {
 			return $this->success_response(
 				array(
-					'protocolVersion' => '2024-11-05',
+					'protocolVersion' => '2025-03-26',
 					'capabilities'    => array(
 						'tools' => new \stdClass(),
 					),

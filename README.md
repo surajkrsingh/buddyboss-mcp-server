@@ -185,7 +185,7 @@ Authorization: Basic base64(username:app_password)
 
 ## Protocol Details
 
-The plugin implements [MCP specification 2024-11-05](https://spec.modelcontextprotocol.io/specification/2024-11-05/) over JSON-RPC 2.0.
+The plugin implements [MCP specification 2025-03-26](https://spec.modelcontextprotocol.io/specification/2025-03-26/) over JSON-RPC 2.0 using Streamable HTTP transport.
 
 ### Supported Methods
 

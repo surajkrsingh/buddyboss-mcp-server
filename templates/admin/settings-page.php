@@ -63,7 +63,7 @@ $username = esc_html( $current_user->user_login );
 							</div>
 							<div>
 								<span class="bbmcp-status-label"><?php esc_html_e( 'Protocol', 'buddyboss-mcp-server' ); ?></span>
-								<span class="bbmcp-status-value">MCP 2024-11-05</span>
+								<span class="bbmcp-status-value">MCP 2025-03-26</span>
 							</div>
 						</div>
 						<div class="bbmcp-status-item">
@@ -72,7 +72,7 @@ $username = esc_html( $current_user->user_login );
 							</div>
 							<div>
 								<span class="bbmcp-status-label"><?php esc_html_e( 'Transport', 'buddyboss-mcp-server' ); ?></span>
-								<span class="bbmcp-status-value"><?php esc_html_e( 'HTTP + SSE', 'buddyboss-mcp-server' ); ?></span>
+								<span class="bbmcp-status-value"><?php esc_html_e( 'Streamable HTTP', 'buddyboss-mcp-server' ); ?></span>
 							</div>
 						</div>
 					</div>
@@ -231,7 +231,7 @@ $username = esc_html( $current_user->user_login );
     "jsonrpc": "2.0",
     "method": "initialize",
     "params": {
-      "protocolVersion": "2024-11-05",
+      "protocolVersion": "2025-03-26",
       "capabilities": {},
       "clientInfo": {"name": "curl-test", "version": "1.0.0"}
     },

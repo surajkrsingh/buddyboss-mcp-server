@@ -13,7 +13,7 @@ The plugin follows a layered architecture with four key components:
 **Request flow:** IDE → `mcp-remote` bridge → `POST /wp-json/buddyboss-mcp/v1/mcp` → `REST_Controller` → `MCP_Server` (JSON-RPC dispatch) → `Tool_Registry` → `Tool_Base` subclass → `Internal_REST_Client` → BuddyBoss REST API → response back up the chain.
 
 - **`Plugin`** (`includes/class-plugin.php`) — Singleton entry point. Checks BuddyBoss dependency, loads files, wires components, registers hooks. Auto-enables Application Passwords on local environments (`.local`, `localhost`).
-- **`MCP_Server`** (`includes/class-mcp-server.php`) — JSON-RPC 2.0 dispatcher. Handles `initialize`, `tools/list`, `tools/call`, and `ping` methods. Protocol version: `2024-11-05`.
+- **`MCP_Server`** (`includes/class-mcp-server.php`) — JSON-RPC 2.0 dispatcher. Handles `initialize`, `tools/list`, `tools/call`, and `ping` methods. Protocol version: `2025-03-26` (Streamable HTTP).
 - **`REST_Controller`** (`includes/class-rest-controller.php`) — WordPress REST endpoint at `buddyboss-mcp/v1/mcp`. POST for JSON-RPC messages, GET for health check. Requires `manage_options` capability + Application Password auth.
 - **`Tool_Registry`** (`includes/class-tool-registry.php`) — Discovers and indexes tools from providers. Extensible via `bbmcp_tool_providers` filter.
 - **`Internal_REST_Client`** (`includes/class-internal-rest-client.php`) — Calls BuddyBoss REST API internally via `rest_do_request()` (no HTTP overhead). Handles user context switching.
