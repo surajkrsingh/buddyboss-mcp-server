@@ -72,7 +72,7 @@ echo -n "YOUR_USERNAME:YOUR_APP_PASSWORD" | base64
 curl -s -X POST https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp \
   -u "YOUR_USERNAME:YOUR_APP_PASSWORD" \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}},"id":1}' \
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}},"id":1}' \
   | python3 -m json.tool
 
 # Expected response:
@@ -80,7 +80,7 @@ curl -s -X POST https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp \
 #   "jsonrpc": "2.0",
 #   "id": 1,
 #   "result": {
-#     "protocolVersion": "2025-03-26",
+#     "protocolVersion": "2025-11-25",
 #     "capabilities": {"tools": {}},
 #     "serverInfo": {"name": "buddyboss-mcp-server", "version": "1.0.0"}
 #   }

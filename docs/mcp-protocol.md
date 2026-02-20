@@ -10,7 +10,7 @@ The Model Context Protocol (MCP) uses JSON-RPC 2.0 over HTTP. Our implementation
 
 **Endpoint:** `POST /wp-json/buddyboss-mcp/v1/mcp`
 
-**Spec version:** `2025-03-26` (stable — Streamable HTTP)
+**Spec version:** `2025-11-25` (stable — Streamable HTTP)
 
 ---
 
@@ -88,7 +88,7 @@ Server returns HTTP 202 Accepted with empty body for notifications.
   "jsonrpc": "2.0",
   "method": "initialize",
   "params": {
-    "protocolVersion": "2025-03-26",
+    "protocolVersion": "2025-11-25",
     "capabilities": {},
     "clientInfo": {
       "name": "claude-desktop",
@@ -105,7 +105,7 @@ Server returns HTTP 202 Accepted with empty body for notifications.
   "jsonrpc": "2.0",
   "id": 1,
   "result": {
-    "protocolVersion": "2025-03-26",
+    "protocolVersion": "2025-11-25",
     "capabilities": {
       "tools": {}
     },
@@ -399,64 +399,24 @@ array(
 
 ### Streamable HTTP
 
-Our implementation uses the simplest form of Streamable HTTP:
-- **POST only** — No GET (SSE) endpoint needed for tools-only server
-- **JSON responses only** — No SSE streaming (unnecessary for our use case)
-- **No session management** — Each request is self-contained (auth via Application Passwords)
-- **Stateless** — No `Mcp-Session-Id` header needed
+Our implementation uses the simplest form of [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports) — the current recommended MCP transport:
 
-This is valid per MCP spec — SSE and sessions are optional features.
+- **Single POST endpoint** — All JSON-RPC messages go to one URL
+- **JSON responses only** — No streaming needed for our use case
+- **Stateless** — Each request is self-contained (auth via Application Passwords), no `Mcp-Session-Id` header needed
+
+This is valid per the MCP spec — SSE streaming and sessions are optional features of Streamable HTTP.
 
 ### What We Don't Implement (and Why)
 
 | Feature | Status | Reason |
 |---------|--------|--------|
-| SSE streaming | Skipped | No long-running tools, no server-initiated messages |
 | Session management | Skipped | Stateless auth via Application Passwords |
-| GET endpoint | Skipped | No server→client notifications needed |
+| GET endpoint | Skipped | No server-to-client notifications needed |
 | DELETE endpoint | Skipped | No sessions to terminate |
 | Resources | Skipped | Tools are sufficient for our use case |
 | Prompts | Skipped | Tools are sufficient for our use case |
 | Sampling | Skipped | Not needed |
-
-### Future: Adding SSE Support
-
-If we need streaming (e.g., for long-running bulk operations), we can add:
-
-```php
-// In REST_Controller
-register_rest_route( 'buddyboss-mcp/v1', '/mcp', array(
-    array(
-        'methods'  => WP_REST_Server::CREATABLE,
-        'callback' => array( $this, 'handle_post' ),
-        // ...
-    ),
-    array(
-        'methods'  => WP_REST_Server::READABLE, // GET for SSE
-        'callback' => array( $this, 'handle_sse' ),
-        // ...
-    ),
-) );
-
-public function handle_sse( $request ) {
-    // Bypass WP REST response
-    header( 'Content-Type: text/event-stream' );
-    header( 'Cache-Control: no-cache' );
-    header( 'Connection: keep-alive' );
-
-    if ( ob_get_level() ) {
-        ob_end_clean();
-    }
-
-    while ( ! connection_aborted() ) {
-        // Check for queued messages
-        echo "data: " . wp_json_encode( $message ) . "\n\n";
-        flush();
-        sleep( 1 );
-    }
-    exit;
-}
-```
 
 ---
 
@@ -507,7 +467,7 @@ npx @modelcontextprotocol/inspector https://yoursite.com/wp-json/buddyboss-mcp/v
 # 1. Initialize
 curl -s -X POST $URL -u "$USER:$PASS" \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}},"id":1}'
 
 # 2. Initialized notification
 curl -s -X POST $URL -u "$USER:$PASS" \
@@ -529,8 +489,8 @@ curl -s -X POST $URL -u "$USER:$PASS" \
 
 ## References
 
-- [MCP Specification (2025-03-26)](https://spec.modelcontextprotocol.io/specification/2025-03-26/)
-- [MCP Transports — Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports)
+- [MCP Specification (2025-11-25)](https://modelcontextprotocol.io/specification/2025-11-25)
+- [MCP Transports — Streamable HTTP](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)
 - [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
 - [BuddyPress MCP Reference](https://github.com/vapvarun/buddypress-mcp)
 - [WordPress Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/)
