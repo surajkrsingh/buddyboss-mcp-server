@@ -64,7 +64,7 @@ All tools follow the naming convention: `buddyboss_{verb}_{resource}`. See the [
 | **Notifications** | 4 tools — list, get, mark read, delete | [notifications.md](docs/knowledge/notifications.md) |
 | **XProfile** | 5 tools — profile field groups, fields, data | [xprofile.md](docs/knowledge/xprofile.md) |
 
-### Phase 2: BuddyBoss Tools (18) — Toggleable
+### Phase 2: BuddyBoss Tools (18) — Coming Soon
 
 | Category | Tools | Documentation |
 |----------|-------|---------------|
@@ -73,7 +73,7 @@ All tools follow the naming convention: `buddyboss_{verb}_{resource}`. See the [
 | **Documents** | 5 tools — list, get, upload, delete + folders | [documents.md](docs/knowledge/documents.md) |
 | **Moderation** | 4 tools — reports, block/unblock members | [moderation.md](docs/knowledge/moderation.md) |
 
-### Phase 3: Advanced Tools (10) — Toggleable
+### Phase 3: Advanced Tools (10) — Coming Soon
 
 | Category | Tools | Documentation |
 |----------|-------|---------------|
