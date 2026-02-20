@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuddyBoss MCP Server — Architecture Explorer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
+  --text:#e6edf3;--text-muted:#8b949e;--text-dim:#484f58;
+  --orange:#F0841F;--blue:#4A9EFF;--green:#3fb950;--red:#f85149;
+  --purple:#bc8cff;--cyan:#79c0ff;--yellow:#d29922;
+  --orange-bg:rgba(240,132,31,0.12);--blue-bg:rgba(74,158,255,0.12);
+  --green-bg:rgba(63,185,80,0.12);--purple-bg:rgba(188,140,255,0.12);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.5}
+code,pre,.mono{font-family:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',Menlo,monospace}
+.app{display:flex;flex-direction:column;height:100vh}
+/* Header */
+.header{display:flex;align-items:center;gap:16px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.header .logo{display:flex;align-items:center;gap:10px}
+.header .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--orange),#e8600a);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff}
+.header h1{font-size:16px;font-weight:600;white-space:nowrap}
+.header h1 span{color:var(--text-muted);font-weight:400}
+/* Tabs */
+.tabs{display:flex;gap:2px;margin-left:24px;flex:1}
+.tab{padding:8px 16px;border-radius:6px 6px 0 0;cursor:pointer;font-size:13px;color:var(--text-muted);border:1px solid transparent;border-bottom:none;transition:all 0.2s;background:transparent;font-weight:500;white-space:nowrap}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{color:var(--orange);background:var(--surface2);border-color:var(--border)}
+.tab .badge{display:inline-block;background:var(--orange-bg);color:var(--orange);font-size:11px;padding:1px 6px;border-radius:10px;margin-left:4px}
+/* Main Content */
+.main{flex:1;overflow:hidden;position:relative}
+.view{display:none;height:100%;overflow-y:auto;padding:24px}
+.view.active{display:block}
+/* Architecture View */
+.arch-container{max-width:1100px;margin:0 auto}
+.arch-layer{position:relative;margin-bottom:4px}
+.arch-box{border:1px solid var(--border);border-radius:10px;padding:16px 20px;background:var(--surface);transition:all 0.3s;cursor:pointer}
+.arch-box:hover{border-color:var(--orange);box-shadow:0 0 20px rgba(240,132,31,0.15)}
+.arch-box.expanded{border-color:var(--blue)}
+.arch-box .layer-header{display:flex;align-items:center;gap:10px}
+.arch-box .layer-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.arch-box .layer-title{font-size:14px;font-weight:600;flex:1}
+.arch-box .layer-subtitle{font-size:12px;color:var(--text-muted)}
+.arch-box .layer-tag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.arch-box .layer-details{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;line-height:1.7;display:none}
+.arch-box.expanded .layer-details{display:block}
+.arch-box .layer-details code{background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px;color:var(--cyan)}
+.arch-box .layer-details .detail-item{display:flex;gap:8px;align-items:flex-start}
+.arch-box .layer-details .detail-item::before{content:'';width:6px;height:6px;border-radius:50%;margin-top:7px;flex-shrink:0}
+/* Arrow connectors */
+.arch-arrow{display:flex;justify-content:center;height:28px;position:relative}
+.arch-arrow svg{width:40px;height:28px}
+/* Animated packet */
+.packet-track{position:absolute;left:50%;width:2px;top:0;bottom:0;background:var(--border)}
+@keyframes packetDown{0%{top:-6px;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:calc(100% - 6px);opacity:0}}
+@keyframes packetUp{0%{bottom:-6px;opacity:0}20%{opacity:1}80%{opacity:1}100%{bottom:calc(100% - 6px);opacity:0}}
+.packet{position:absolute;width:10px;height:10px;border-radius:50%;left:50%;transform:translateX(-50%);animation-duration:1.2s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.packet.down{background:var(--orange);animation-name:packetDown}
+.packet.up{background:var(--green);animation-name:packetUp}
+/* Layer colors */
+.l1 .layer-num{background:var(--blue-bg);color:var(--blue)}
+.l2 .layer-num{background:var(--purple-bg);color:var(--purple)}
+.l3 .layer-num{background:var(--orange-bg);color:var(--orange)}
+.l4 .layer-num{background:rgba(74,158,255,0.15);color:var(--cyan)}
+.l5 .layer-num{background:var(--green-bg);color:var(--green)}
+.l6 .layer-num{background:rgba(210,153,34,0.15);color:var(--yellow)}
+.l7 .layer-num{background:rgba(248,81,73,0.15);color:var(--red)}
+.l8 .layer-num{background:var(--purple-bg);color:var(--purple)}
+.l1 .layer-tag{background:var(--blue-bg);color:var(--blue)}
+.l2 .layer-tag{background:var(--purple-bg);color:var(--purple)}
+.l3 .layer-tag{background:var(--orange-bg);color:var(--orange)}
+.l4 .layer-tag{background:rgba(74,158,255,0.15);color:var(--cyan)}
+.l5 .layer-tag{background:var(--green-bg);color:var(--green)}
+.l6 .layer-tag{background:rgba(210,153,34,0.15);color:var(--yellow)}
+.l7 .layer-tag{background:rgba(248,81,73,0.15);color:var(--red)}
+.l8 .layer-tag{background:var(--purple-bg);color:var(--purple)}
+.detail-item.l1::before{background:var(--blue)}
+.detail-item.l2::before{background:var(--purple)}
+.detail-item.l3::before{background:var(--orange)}
+.detail-item.l4::before{background:var(--cyan)}
+.detail-item.l5::before{background:var(--green)}
+.detail-item.l6::before{background:var(--yellow)}
+.detail-item.l7::before{background:var(--red)}
+.detail-item.l8::before{background:var(--purple)}
+/* IDE client icons row */
+.ide-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.ide-chip{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500}
+.ide-chip.http{background:var(--green-bg);color:var(--green)}
+.ide-chip.stdio{background:var(--orange-bg);color:var(--orange)}
+/* Provider grid */
+.provider-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:10px}
+.provider-pill{padding:6px 10px;border-radius:6px;background:var(--surface2);font-size:12px;text-align:center;border:1px solid var(--border)}
+.provider-pill .pcount{color:var(--text-muted);font-size:11px}
+/* Data Flow View */
+.flow-container{max-width:900px;margin:0 auto}
+.flow-controls{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.flow-btn{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:13px;transition:all 0.2s}
+.flow-btn:hover{border-color:var(--orange)}
+.flow-btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.flow-btn.primary:hover{background:#d8720f}
+.flow-btn:disabled{opacity:0.4;cursor:not-allowed}
+.flow-step-indicator{display:flex;gap:4px;margin-left:auto}
+.flow-dot{width:10px;height:10px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);transition:all 0.3s}
+.flow-dot.active{background:var(--orange);border-color:var(--orange)}
+.flow-dot.done{background:var(--green);border-color:var(--green)}
+.flow-card{border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden;margin-bottom:12px;transition:all 0.4s}
+.flow-card.hidden{opacity:0;max-height:0;margin:0;border:0;padding:0;overflow:hidden}
+.flow-card.visible{opacity:1;max-height:1000px}
+.flow-card-header{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.flow-card-header .step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.flow-card-header .step-label{font-size:13px;font-weight:600;flex:1}
+.flow-card-header .step-class{font-size:12px;color:var(--text-muted);font-family:var(--mono)}
+.flow-card-body{padding:16px 18px}
+.flow-card-body pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;overflow-x:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all}
+.flow-card-body .desc{font-size:13px;color:var(--text-muted);margin-bottom:10px}
+.flow-card-body .action-list{list-style:none;font-size:13px}
+.flow-card-body .action-list li{padding:4px 0;display:flex;gap:8px;align-items:flex-start}
+.flow-card-body .action-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--orange);margin-top:7px;flex-shrink:0}
+.flow-dir{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:4px}
+.flow-dir.req{background:var(--orange-bg);color:var(--orange)}
+.flow-dir.res{background:var(--green-bg);color:var(--green)}
+.flow-dir.internal{background:var(--blue-bg);color:var(--blue)}
+/* Handshake View */
+.hs-container{max-width:900px;margin:0 auto}
+.hs-sequence{position:relative;padding:20px 0}
+.hs-lane{display:flex;gap:0;margin-bottom:0}
+.hs-lane-header{display:flex;justify-content:space-between;margin-bottom:20px}
+.hs-actor{text-align:center;flex:1}
+.hs-actor .name{font-size:14px;font-weight:600;padding:8px 16px;border-radius:6px;display:inline-block}
+.hs-actor.client .name{background:var(--blue-bg);color:var(--blue)}
+.hs-actor.server .name{background:var(--orange-bg);color:var(--orange)}
+.hs-msg{display:flex;align-items:center;margin-bottom:16px;position:relative;min-height:40px}
+.hs-msg .hs-line{position:absolute;top:50%;height:2px;z-index:0}
+.hs-msg.right .hs-line{left:25%;right:25%;background:linear-gradient(90deg,var(--blue),var(--orange))}
+.hs-msg.left .hs-line{left:25%;right:25%;background:linear-gradient(90deg,var(--orange),var(--blue))}
+.hs-msg .hs-arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:16px;z-index:1}
+.hs-msg.right .hs-arrow{right:24%;color:var(--orange)}
+.hs-msg.left .hs-arrow{left:24%;color:var(--blue)}
+.hs-msg .hs-label{position:absolute;top:-2px;z-index:2;font-size:12px;font-weight:600;padding:3px 10px;border-radius:4px;white-space:nowrap}
+.hs-msg.right .hs-label{left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+.hs-msg.left .hs-label{left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+.hs-json-box{margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden}
+.hs-json-box .hs-json-header{padding:8px 14px;background:var(--surface2);font-size:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.hs-json-box pre{padding:12px 14px;font-size:11.5px;line-height:1.6;overflow-x:auto}
+.hs-step-group{margin-bottom:24px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.hs-step-title{padding:12px 18px;background:var(--surface2);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;cursor:pointer}
+.hs-step-title .step-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.hs-step-content{padding:16px 18px;background:var(--surface)}
+.hs-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* Tool Catalog */
+.catalog-container{max-width:1100px;margin:0 auto}
+.catalog-header{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.catalog-search{padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;width:260px}
+.catalog-search:focus{outline:none;border-color:var(--orange)}
+.catalog-filter{display:flex;gap:6px;flex-wrap:wrap}
+.catalog-filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;font-size:12px;transition:all 0.2s}
+.catalog-filter-btn:hover,.catalog-filter-btn.active{border-color:var(--orange);color:var(--orange);background:var(--orange-bg)}
+.catalog-grid{display:grid;gap:10px}
+.catalog-group{margin-bottom:16px}
+.catalog-group-title{font-size:14px;font-weight:600;padding:8px 0;display:flex;align-items:center;gap:8px;color:var(--text)}
+.catalog-group-title .gcnt{color:var(--text-muted);font-weight:400;font-size:12px}
+.tool-card{border:1px solid var(--border);border-radius:8px;background:var(--surface);padding:14px 16px;cursor:pointer;transition:all 0.2s}
+.tool-card:hover{border-color:var(--blue);background:var(--surface2)}
+.tool-card.expanded{border-color:var(--orange)}
+.tool-card .tool-name{font-size:13px;font-weight:600;color:var(--cyan);font-family:'SF Mono',SFMono-Regular,Consolas,monospace}
+.tool-card .tool-desc{font-size:12px;color:var(--text-muted);margin-top:4px}
+.tool-card .tool-params{margin-top:10px;display:none;border-top:1px solid var(--border);padding-top:10px}
+.tool-card.expanded .tool-params{display:block}
+.param-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px}
+.param-name{color:var(--purple);font-family:'SF Mono',SFMono-Regular,Consolas,monospace;min-width:120px}
+.param-type{color:var(--text-dim);font-size:11px;padding:1px 6px;border-radius:3px;background:var(--surface2)}
+.param-req{color:var(--red);font-size:10px;font-weight:600}
+.param-desc{color:var(--text-muted);flex:1}
+.tool-endpoint{margin-top:8px;font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px}
+.tool-endpoint code{color:var(--green);background:var(--green-bg);padding:1px 6px;border-radius:3px}
+.http-method{font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px}
+.http-method.get{background:var(--blue-bg);color:var(--blue)}
+.http-method.post{background:var(--green-bg);color:var(--green)}
+.http-method.put{background:var(--orange-bg);color:var(--orange)}
+.http-method.delete{background:rgba(248,81,73,0.15);color:var(--red)}
+/* Auth View */
+.auth-container{max-width:900px;margin:0 auto}
+.auth-flow{display:flex;flex-direction:column;gap:12px}
+.auth-step{border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden}
+.auth-step-header{padding:14px 18px;display:flex;align-items:center;gap:12px}
+.auth-step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:var(--orange-bg);color:var(--orange)}
+.auth-step-title{font-size:14px;font-weight:600;flex:1}
+.auth-step-desc{padding:0 18px 14px 62px;font-size:13px;color:var(--text-muted);line-height:1.7}
+.auth-step-desc code{background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px;color:var(--cyan)}
+.auth-connector{display:flex;justify-content:center;height:20px}
+.auth-connector svg{width:20px;height:20px}
+/* Legend */
+.legend{display:flex;gap:16px;padding:12px 0;flex-wrap:wrap;font-size:12px}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+/* Prompt Section */
+.prompt-section{border-top:1px solid var(--border);background:var(--surface);padding:16px 24px;flex-shrink:0}
+.prompt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.prompt-header span{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.copy-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:12px;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.copy-btn:hover{border-color:var(--orange);color:var(--orange)}
+.copy-btn.copied{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.prompt-text{font-size:12px;color:var(--text-muted);line-height:1.6;max-height:80px;overflow-y:auto;white-space:pre-wrap;font-family:'SF Mono',SFMono-Regular,Consolas,monospace}
+/* Responsive */
+@media(max-width:768px){
+  .header{flex-wrap:wrap;padding:10px 16px}
+  .tabs{margin-left:0;overflow-x:auto}
+  .view{padding:16px}
+  .hs-columns{grid-template-columns:1fr}
+  .catalog-search{width:100%}
+  .tab{font-size:12px;padding:6px 10px}
+}
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.3s ease-out}
+/* JSON syntax colors */
+.json-key{color:var(--cyan)}
+.json-str{color:var(--green)}
+.json-num{color:var(--orange)}
+.json-bool{color:var(--purple)}
+.json-null{color:var(--red)}
+.json-brace{color:var(--text-muted)}
+/* Scenario selector for data flow */
+.scenario-select{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer}
+.scenario-select:focus{outline:none;border-color:var(--orange)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">B</div>
+      <h1>BuddyBoss MCP Server <span>Architecture Explorer</span></h1>
+    </div>
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-view="arch">Architecture</div>
+      <div class="tab" data-view="flow">Data Flow <span class="badge">Live</span></div>
+      <div class="tab" data-view="handshake">MCP Protocol</div>
+      <div class="tab" data-view="catalog">Tool Catalog <span class="badge">37</span></div>
+      <div class="tab" data-view="auth">Auth Flow</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- =========== ARCHITECTURE VIEW =========== -->
+    <div class="view active" id="view-arch">
+      <div class="arch-container">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> Request (down)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Response (up)</div>
+          <div class="legend-item" style="margin-left:auto;color:var(--text-dim)">Click any layer for details</div>
+        </div>
+        <div id="arch-layers"></div>
+      </div>
+    </div>
+
+    <!-- =========== DATA FLOW VIEW =========== -->
+    <div class="view" id="view-flow">
+      <div class="flow-container">
+        <div class="flow-controls">
+          <select class="scenario-select" id="scenarioSelect">
+            <option value="list_members">List Members (search)</option>
+            <option value="create_group">Create Group</option>
+            <option value="send_message">Send Message</option>
+            <option value="initialize">Initialize Handshake</option>
+          </select>
+          <button class="flow-btn" id="prevStep" disabled>&larr; Prev</button>
+          <button class="flow-btn primary" id="nextStep">Next Step &rarr;</button>
+          <button class="flow-btn" id="resetFlow">Reset</button>
+          <div class="flow-step-indicator" id="flowDots"></div>
+        </div>
+        <div id="flow-steps"></div>
+      </div>
+    </div>
+
+    <!-- =========== HANDSHAKE VIEW =========== -->
+    <div class="view" id="view-handshake">
+      <div class="hs-container">
+        <div class="hs-lane-header">
+          <div class="hs-actor client"><div class="name">AI IDE Client</div></div>
+          <div class="hs-actor server"><div class="name">MCP Server (WordPress)</div></div>
+        </div>
+        <div id="hs-steps"></div>
+      </div>
+    </div>
+
+    <!-- =========== TOOL CATALOG VIEW =========== -->
+    <div class="view" id="view-catalog">
+      <div class="catalog-container">
+        <div class="catalog-header">
+          <input type="text" class="catalog-search" id="catalogSearch" placeholder="Search tools...">
+          <div class="catalog-filter" id="catalogFilter"></div>
+        </div>
+        <div id="catalogGrid"></div>
+      </div>
+    </div>
+
+    <!-- =========== AUTH FLOW VIEW =========== -->
+    <div class="view" id="view-auth">
+      <div class="auth-container" id="authFlow"></div>
+    </div>
+  </div>
+
+  <div class="prompt-section">
+    <div class="prompt-header">
+      <span>Architecture Summary Prompt</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy
+      </button>
+    </div>
+    <div class="prompt-text" id="promptText"></div>
+  </div>
+</div>
+
+<script>
+// ========== STATE ==========
+const state = {
+  activeView: 'arch',
+  expandedLayers: new Set(),
+  flowStep: 0,
+  flowScenario: 'list_members',
+  expandedTools: new Set(),
+  catalogFilter: 'all',
+  catalogSearch: ''
+};
+
+// ========== ARCHITECTURE DATA ==========
+const layers = [
+  {
+    id: 'ide', num: 1, cls: 'l1',
+    title: 'AI IDE Clients',
+    subtitle: 'Claude Desktop, Cursor, VS Code, Claude Code',
+    tag: 'External',
+    details: [
+      { cls: 'l1', text: '<strong>HTTP-native clients:</strong> Claude Code, Claude.ai — connect directly via <code>POST</code>' },
+      { cls: 'l1', text: '<strong>stdio clients:</strong> Claude Desktop, VS Code — need <code>mcp-remote</code> bridge (npx)' },
+      { cls: 'l1', text: 'Bridge converts: <code>stdio &harr; HTTP POST</code> with auth headers' },
+      { cls: 'l1', text: 'All clients speak JSON-RPC 2.0 over the MCP protocol' }
+    ],
+    extra: `<div class="ide-row">
+      <span class="ide-chip http">Claude Code — HTTP</span>
+      <span class="ide-chip http">Claude.ai — HTTP</span>
+      <span class="ide-chip stdio">Claude Desktop — stdio+bridge</span>
+      <span class="ide-chip stdio">Cursor — stdio+bridge</span>
+      <span class="ide-chip stdio">VS Code — stdio+bridge</span>
+    </div>`
+  },
+  {
+    id: 'transport', num: 2, cls: 'l2',
+    title: 'HTTP Transport Layer',
+    subtitle: 'Streamable HTTP — MCP Spec 2025-11-25',
+    tag: 'Network',
+    details: [
+      { cls: 'l2', text: 'Endpoint: <code>POST /wp-json/buddyboss-mcp/v1/mcp</code>' },
+      { cls: 'l2', text: 'Auth header: <code>Authorization: Basic base64(user:app_password)</code>' },
+      { cls: 'l2', text: 'Content type: <code>application/json</code> (JSON-RPC 2.0 body)' },
+      { cls: 'l2', text: 'Stateless — no session management, each request self-contained' },
+      { cls: 'l2', text: 'GET endpoint available for health check (server name + version + status)' }
+    ]
+  },
+  {
+    id: 'rest', num: 3, cls: 'l3',
+    title: 'REST_Controller',
+    subtitle: 'includes/class-rest-controller.php — extends WP_REST_Controller',
+    tag: 'WordPress',
+    details: [
+      { cls: 'l3', text: 'Validates <code>Application Password</code> — WordPress handles Basic Auth automatically' },
+      { cls: 'l3', text: 'Checks <code>is_user_logged_in()</code> → 401 if not authenticated' },
+      { cls: 'l3', text: 'Checks <code>current_user_can(\'manage_options\')</code> → 403 if not admin' },
+      { cls: 'l3', text: 'Extracts raw JSON body via <code>$request->get_body()</code>' },
+      { cls: 'l3', text: 'Gets authenticated user: <code>$user_id = get_current_user_id()</code>' },
+      { cls: 'l3', text: 'Passes <code>($body, $user_id)</code> to <code>MCP_Server::handle_request()</code>' },
+      { cls: 'l3', text: 'Notifications (no id) return <code>HTTP 202 Accepted</code>' }
+    ]
+  },
+  {
+    id: 'mcp', num: 4, cls: 'l4',
+    title: 'MCP_Server',
+    subtitle: 'includes/class-mcp-server.php — JSON-RPC 2.0 Dispatcher',
+    tag: 'Protocol',
+    details: [
+      { cls: 'l4', text: 'Parses JSON body with <code>json_decode()</code>, validates <code>jsonrpc: "2.0"</code>' },
+      { cls: 'l4', text: 'Routes 4 methods: <code>initialize</code>, <code>tools/list</code>, <code>tools/call</code>, <code>ping</code>' },
+      { cls: 'l4', text: '<code>initialize</code> → returns protocolVersion, capabilities, serverInfo' },
+      { cls: 'l4', text: '<code>tools/list</code> → returns all tool definitions from Tool_Registry' },
+      { cls: 'l4', text: '<code>tools/call</code> → looks up tool in registry, invokes provider method' },
+      { cls: 'l4', text: 'Error codes: <code>-32700</code> parse, <code>-32600</code> invalid, <code>-32601</code> method not found, <code>-32602</code> invalid params' },
+      { cls: 'l4', text: 'Tool validation errors → <code>isError: true</code> in result (not protocol error)' }
+    ]
+  },
+  {
+    id: 'registry', num: 5, cls: 'l5',
+    title: 'Tool_Registry',
+    subtitle: 'includes/class-tool-registry.php — 37 tools from 7 providers',
+    tag: '37 Tools',
+    details: [
+      { cls: 'l5', text: 'Loads 7 provider classes, calls <code>register_tools()</code> on each' },
+      { cls: 'l5', text: 'Builds flat map: <code>tool_name → {provider, method}</code>' },
+      { cls: 'l5', text: 'Builds definitions array for <code>tools/list</code> response (name, description, inputSchema)' },
+      { cls: 'l5', text: 'Groups definitions by provider label for admin page display' },
+      { cls: 'l5', text: 'Extensible via <code>bbmcp_tool_providers</code> WordPress filter' },
+      { cls: 'l5', text: '<code>get_tool($name)</code> → returns provider instance + method name for execution' }
+    ]
+  },
+  {
+    id: 'providers', num: 6, cls: 'l6',
+    title: 'Tool Providers',
+    subtitle: 'includes/tools/ — 7 classes extending Tool_Base',
+    tag: 'Business Logic',
+    details: [
+      { cls: 'l6', text: 'Each provider extends <code>Tool_Base</code> which provides <code>rest_client</code>, validators, helpers' },
+      { cls: 'l6', text: 'Helper methods: <code>validate_required()</code>, <code>get_int()</code>, <code>get_string()</code>, <code>get_bool()</code>' },
+      { cls: 'l6', text: 'Tool methods signature: <code>method_name($args, $user_id) → string</code>' },
+      { cls: 'l6', text: 'All inputs sanitized: <code>sanitize_text_field()</code>, <code>sanitize_email()</code>, <code>wp_kses_post()</code>' },
+      { cls: 'l6', text: 'Tool naming: <code>buddyboss_{action}_{resource}</code>' },
+      { cls: 'l6', text: 'Strings truncated to <code>MAX_STRING_LENGTH = 1000</code> chars for safety' }
+    ],
+    extra: `<div class="provider-grid">
+      <div class="provider-pill">Members <div class="pcount">5 tools</div></div>
+      <div class="provider-pill">Groups <div class="pcount">8 tools</div></div>
+      <div class="provider-pill">Activity <div class="pcount">6 tools</div></div>
+      <div class="provider-pill">Messages <div class="pcount">5 tools</div></div>
+      <div class="provider-pill">Friends <div class="pcount">4 tools</div></div>
+      <div class="provider-pill">Notifications <div class="pcount">4 tools</div></div>
+      <div class="provider-pill">XProfile <div class="pcount">5 tools</div></div>
+    </div>`
+  },
+  {
+    id: 'client', num: 7, cls: 'l7',
+    title: 'Internal_REST_Client',
+    subtitle: 'includes/class-internal-rest-client.php — Zero HTTP Overhead',
+    tag: 'Bridge',
+    details: [
+      { cls: 'l7', text: 'Calls BuddyBoss API via <code>rest_do_request()</code> — internal PHP dispatch, no HTTP' },
+      { cls: 'l7', text: 'Creates <code>WP_REST_Request</code> objects with method, route, and params' },
+      { cls: 'l7', text: 'User context switching: <code>wp_set_current_user($user_id)</code> before request' },
+      { cls: 'l7', text: 'Restores original user in <code>finally</code> block (always safe)' },
+      { cls: 'l7', text: 'Convenience methods: <code>get()</code>, <code>post()</code>, <code>put()</code>, <code>patch()</code>, <code>delete()</code>' },
+      { cls: 'l7', text: '<code>format_response()</code> → converts data or WP_Error to JSON string' }
+    ]
+  },
+  {
+    id: 'bb', num: 8, cls: 'l8',
+    title: 'BuddyBoss REST API',
+    subtitle: '/buddyboss/v1/* — Community Platform Endpoints',
+    tag: 'BuddyBoss',
+    details: [
+      { cls: 'l8', text: 'Endpoints: <code>/buddyboss/v1/members</code>, <code>/groups</code>, <code>/activity</code>, <code>/messages</code>, etc.' },
+      { cls: 'l8', text: 'Handles validation, permission checks, and database queries' },
+      { cls: 'l8', text: 'Returns <code>WP_REST_Response</code> with data or error' },
+      { cls: 'l8', text: 'Permissions enforced by BuddyBoss — MCP inherits same access control' },
+      { cls: 'l8', text: 'Supports all CRUD operations with standard REST semantics' }
+    ]
+  }
+];
+
+// ========== DATA FLOW SCENARIOS ==========
+const scenarios = {
+  list_members: {
+    title: 'List Members (search for "john")',
+    steps: [
+      { num: 1, label: 'IDE Sends JSON-RPC Request', dir: 'req', cls: 'l1',
+        desc: 'The AI IDE constructs a JSON-RPC 2.0 request to call the buddyboss_list_members tool.',
+        json: `{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "buddyboss_list_members",
+    "arguments": {
+      "search": "john",
+      "per_page": 5
+    }
+  },
+  "id": 1
+}` },
+      { num: 2, label: 'REST_Controller — Auth & Extraction', dir: 'internal', cls: 'l3',
+        desc: 'WordPress validates the Application Password, then REST_Controller checks permissions.',
+        actions: [
+          'Validates <code>Authorization: Basic base64(admin:xxxx xxxx xxxx)</code>',
+          'Checks <code>is_user_logged_in()</code> → true',
+          'Checks <code>current_user_can("manage_options")</code> → true',
+          'Extracts: <code>$body = $request->get_body()</code>',
+          'Gets: <code>$user_id = get_current_user_id()</code> → 1',
+          'Calls: <code>$mcp_server->handle_request($body, 1)</code>'
+        ] },
+      { num: 3, label: 'MCP_Server — JSON-RPC Parsing & Routing', dir: 'internal', cls: 'l4',
+        desc: 'MCP_Server parses the JSON-RPC envelope and routes to the correct handler.',
+        actions: [
+          '<code>json_decode($body)</code> → validates JSON',
+          'Checks <code>jsonrpc === "2.0"</code> ✓',
+          'Extracts: method = <code>"tools/call"</code>',
+          'Extracts: params, id = <code>1</code>',
+          'Dispatches to <code>handle_tool_call($params, 1, 1)</code>'
+        ] },
+      { num: 4, label: 'Tool_Registry — Tool Lookup', dir: 'internal', cls: 'l5',
+        desc: 'The registry maps the tool name to the correct provider class and method.',
+        actions: [
+          'Looks up <code>"buddyboss_list_members"</code> in tools map',
+          'Found: <code>{ provider: Members_Tools, method: "list_members" }</code>',
+          'Invokes: <code>$provider->list_members($arguments, $user_id)</code>'
+        ] },
+      { num: 5, label: 'Members_Tools — Parameter Sanitization', dir: 'internal', cls: 'l6',
+        desc: 'The tool provider sanitizes and validates all input parameters.',
+        actions: [
+          '<code>get_int($args, "page", 1)</code> → 1 (default)',
+          '<code>min(get_int($args, "per_page", 20), 100)</code> → 5',
+          '<code>get_string($args, "search")</code> → sanitize_text_field("john") → "john"',
+          'Calls: <code>$rest_client->get("/buddyboss/v1/members", {page:1, per_page:5, search:"john"}, 1)</code>'
+        ] },
+      { num: 6, label: 'Internal_REST_Client → BuddyBoss API', dir: 'internal', cls: 'l7',
+        desc: 'The client makes an internal PHP request — zero HTTP overhead.',
+        actions: [
+          'Creates <code>new WP_REST_Request("GET", "/buddyboss/v1/members")</code>',
+          'Sets query params: <code>{page: 1, per_page: 5, search: "john"}</code>',
+          'Switches user: <code>wp_set_current_user(1)</code>',
+          'Dispatches: <code>rest_do_request($request)</code>',
+          'BuddyBoss queries database, returns member data',
+          'Restores original user in <code>finally</code> block',
+          'Returns <code>$response->get_data()</code> → PHP array'
+        ] },
+      { num: 7, label: 'Response Bubbles Up → IDE', dir: 'res', cls: 'l1',
+        desc: 'The response travels back up through all layers to the AI IDE.',
+        json: `{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[{\"id\":42,\"name\":\"John Doe\",\"user_login\":\"johnd\",\"email\":\"john@example.com\",\"role\":\"subscriber\",\"registered_date\":\"2024-01-15\"},{\"id\":87,\"name\":\"Johnny Smith\",...}]"
+      }
+    ]
+  }
+}` }
+    ]
+  },
+  create_group: {
+    title: 'Create a New Group',
+    steps: [
+      { num: 1, label: 'IDE Sends Create Group Request', dir: 'req', cls: 'l1',
+        json: `{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "buddyboss_create_group",
+    "arguments": {
+      "name": "Photography Club",
+      "description": "A group for photography enthusiasts",
+      "status": "public",
+      "enable_forum": true
+    }
+  },
+  "id": 2
+}` },
+      { num: 2, label: 'REST_Controller — Auth Check', dir: 'internal', cls: 'l3',
+        actions: ['Auth validated, user_id = 1', 'manage_options check → passed'] },
+      { num: 3, label: 'MCP_Server — Routes to tools/call', dir: 'internal', cls: 'l4',
+        actions: ['JSON-RPC 2.0 valid', 'Method: tools/call', 'Tool name: buddyboss_create_group'] },
+      { num: 4, label: 'Tool_Registry Lookup', dir: 'internal', cls: 'l5',
+        actions: ['Maps to Groups_Tools::create_group'] },
+      { num: 5, label: 'Groups_Tools — Validate & Sanitize', dir: 'internal', cls: 'l6',
+        actions: [
+          'validate_required: "name" ✓',
+          'sanitize_text_field("Photography Club")',
+          'wp_kses_post(description)',
+          'Validates status ∈ {public, private, hidden}',
+          'Sets creator_id = $user_id (1)',
+          'POST /buddyboss/v1/groups'
+        ] },
+      { num: 6, label: 'Internal_REST_Client → BuddyBoss', dir: 'internal', cls: 'l7',
+        actions: ['WP_REST_Request("POST", "/buddyboss/v1/groups")', 'Body params set', 'rest_do_request() → group created'] },
+      { num: 7, label: 'Response — Group Created', dir: 'res', cls: 'l1',
+        json: `{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"id\":15,\"name\":\"Photography Club\",\"status\":\"public\",\"description\":\"A group for photography enthusiasts\",\"creator_id\":1,\"total_member_count\":1}"
+      }
+    ]
+  }
+}` }
+    ]
+  },
+  send_message: {
+    title: 'Send a Message',
+    steps: [
+      { num: 1, label: 'IDE Sends Message Request', dir: 'req', cls: 'l1',
+        json: `{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "buddyboss_send_message",
+    "arguments": {
+      "recipients": "42,87",
+      "subject": "Welcome!",
+      "message": "Welcome to the community!"
+    }
+  },
+  "id": 3
+}` },
+      { num: 2, label: 'REST_Controller — Auth Check', dir: 'internal', cls: 'l3',
+        actions: ['Application Password validated', 'Admin capability confirmed'] },
+      { num: 3, label: 'MCP_Server — Route', dir: 'internal', cls: 'l4',
+        actions: ['tools/call → buddyboss_send_message'] },
+      { num: 4, label: 'Tool_Registry', dir: 'internal', cls: 'l5',
+        actions: ['Maps to Messages_Tools::send_message'] },
+      { num: 5, label: 'Messages_Tools — Validate', dir: 'internal', cls: 'l6',
+        actions: [
+          'validate_required: recipients, subject, message ✓',
+          'sanitize_text_field(recipients)',
+          'sanitize_text_field(subject)',
+          'wp_kses_post(message)',
+          'POST /buddyboss/v1/messages'
+        ] },
+      { num: 6, label: 'Internal_REST_Client', dir: 'internal', cls: 'l7',
+        actions: ['POST request dispatched', 'Message thread created'] },
+      { num: 7, label: 'Response — Message Sent', dir: 'res', cls: 'l1',
+        json: `{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"id\":201,\"subject\":\"Welcome!\",\"message\":\"Welcome to the community!\",\"recipients\":[42,87],\"sender_id\":1}"
+      }
+    ]
+  }
+}` }
+    ]
+  },
+  initialize: {
+    title: 'MCP Initialize Handshake',
+    steps: [
+      { num: 1, label: 'Client Sends Initialize', dir: 'req', cls: 'l1',
+        json: `{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-11-25",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "claude-code",
+      "version": "1.0.0"
+    }
+  },
+  "id": 1
+}` },
+      { num: 2, label: 'REST_Controller — Auth', dir: 'internal', cls: 'l3',
+        actions: ['Application Password validated', 'manage_options confirmed'] },
+      { num: 3, label: 'MCP_Server — handle_initialize()', dir: 'internal', cls: 'l4',
+        desc: 'MCP_Server recognizes "initialize" and returns server capabilities.',
+        actions: ['Method: initialize', 'No tool lookup needed', 'Returns server info + capabilities'] },
+      { num: 4, label: 'Response — Server Capabilities', dir: 'res', cls: 'l1',
+        json: `{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "protocolVersion": "2025-11-25",
+    "capabilities": {
+      "tools": {}
+    },
+    "serverInfo": {
+      "name": "buddyboss-mcp-server",
+      "version": "1.0.1"
+    }
+  }
+}` },
+      { num: 5, label: 'Client Sends Initialized Notification', dir: 'req', cls: 'l1',
+        desc: 'Client confirms initialization. This is a notification (no "id" field).',
+        json: `{
+  "jsonrpc": "2.0",
+  "method": "notifications/initialized"
+}` },
+      { num: 6, label: 'Server Returns 202 Accepted', dir: 'res', cls: 'l3',
+        desc: 'Notifications have no "id" so the server returns null → REST_Controller sends HTTP 202 with empty body.',
+        actions: ['No id in request → notification', 'MCP_Server returns null', 'REST_Controller: new WP_REST_Response(null, 202)'] }
+    ]
+  }
+};
+
+// ========== TOOL CATALOG DATA ==========
+const toolCatalog = {
+  'Members': {
+    color: 'var(--blue)', tools: [
+      { name: 'buddyboss_list_members', desc: 'List members with optional filtering by role, member type, or search query.', method: 'GET', endpoint: '/buddyboss/v1/members',
+        params: [{n:'page',t:'integer',d:'Page number. Default: 1'},{n:'per_page',t:'integer',d:'Members per page. Default: 20, max: 100'},{n:'search',t:'string',d:'Search by name'},{n:'role',t:'string',d:'Filter by WP role'},{n:'member_type',t:'string',d:'Filter by member type slug'},{n:'exclude',t:'string',d:'Comma-separated IDs to exclude'}] },
+      { name: 'buddyboss_get_member', desc: 'Get detailed profile info by user ID.', method: 'GET', endpoint: '/buddyboss/v1/members/{id}',
+        params: [{n:'id',t:'integer',d:'The member/user ID',r:true}] },
+      { name: 'buddyboss_create_member', desc: 'Create a new member account.', method: 'POST', endpoint: '/buddyboss/v1/members',
+        params: [{n:'username',t:'string',d:'Login username',r:true},{n:'email',t:'string',d:'Email address',r:true},{n:'password',t:'string',d:'Account password',r:true},{n:'name',t:'string',d:'Display name'}] },
+      { name: 'buddyboss_update_member', desc: 'Update member profile.', method: 'PUT', endpoint: '/buddyboss/v1/members/{id}',
+        params: [{n:'id',t:'integer',d:'User ID to update',r:true},{n:'name',t:'string',d:'New display name'},{n:'email',t:'string',d:'New email'},{n:'member_type',t:'string',d:'New member type slug'}] },
+      { name: 'buddyboss_delete_member', desc: 'Permanently delete a member account.', method: 'DELETE', endpoint: '/buddyboss/v1/members/{id}',
+        params: [{n:'id',t:'integer',d:'User ID to delete',r:true},{n:'reassign',t:'integer',d:'Reassign posts to user ID'}] }
+    ]
+  },
+  'Groups': {
+    color: 'var(--green)', tools: [
+      { name: 'buddyboss_list_groups', desc: 'List groups with filtering.', method: 'GET', endpoint: '/buddyboss/v1/groups',
+        params: [{n:'page',t:'integer',d:'Page number'},{n:'per_page',t:'integer',d:'Per page (max 100)'},{n:'search',t:'string',d:'Search by name/desc'},{n:'status',t:'string',d:'public, private, hidden'},{n:'user_id',t:'integer',d:'Groups this user belongs to'},{n:'group_type',t:'string',d:'Filter by type slug'}] },
+      { name: 'buddyboss_get_group', desc: 'Get group details by ID.', method: 'GET', endpoint: '/buddyboss/v1/groups/{id}',
+        params: [{n:'id',t:'integer',d:'The group ID',r:true}] },
+      { name: 'buddyboss_create_group', desc: 'Create a new group.', method: 'POST', endpoint: '/buddyboss/v1/groups',
+        params: [{n:'name',t:'string',d:'Group name',r:true},{n:'description',t:'string',d:'Group description'},{n:'status',t:'string',d:'public/private/hidden'},{n:'enable_forum',t:'boolean',d:'Enable discussion forum'},{n:'creator_id',t:'integer',d:'Creator user ID'}] },
+      { name: 'buddyboss_update_group', desc: 'Update a group.', method: 'PUT', endpoint: '/buddyboss/v1/groups/{id}',
+        params: [{n:'id',t:'integer',d:'Group ID',r:true},{n:'name',t:'string',d:'New name'},{n:'description',t:'string',d:'New description'},{n:'status',t:'string',d:'New status'}] },
+      { name: 'buddyboss_delete_group', desc: 'Delete a group permanently.', method: 'DELETE', endpoint: '/buddyboss/v1/groups/{id}',
+        params: [{n:'id',t:'integer',d:'Group ID',r:true}] },
+      { name: 'buddyboss_list_group_members', desc: 'List group members.', method: 'GET', endpoint: '/buddyboss/v1/groups/{id}/members',
+        params: [{n:'group_id',t:'integer',d:'Group ID',r:true},{n:'page',t:'integer',d:'Page number'},{n:'per_page',t:'integer',d:'Per page'},{n:'roles',t:'string',d:'admin,mod,member,banned'}] },
+      { name: 'buddyboss_add_group_member', desc: 'Add user to a group.', method: 'PUT', endpoint: '/buddyboss/v1/groups/{id}/members/{uid}',
+        params: [{n:'group_id',t:'integer',d:'Group ID',r:true},{n:'user_id',t:'integer',d:'User ID to add',r:true},{n:'role',t:'string',d:'admin, mod, or member'}] },
+      { name: 'buddyboss_remove_group_member', desc: 'Remove user from group.', method: 'DELETE', endpoint: '/buddyboss/v1/groups/{id}/members/{uid}',
+        params: [{n:'group_id',t:'integer',d:'Group ID',r:true},{n:'user_id',t:'integer',d:'User ID to remove',r:true}] }
+    ]
+  },
+  'Activity': {
+    color: 'var(--orange)', tools: [
+      { name: 'buddyboss_list_activities', desc: 'List activity feed with filtering.', method: 'GET', endpoint: '/buddyboss/v1/activity',
+        params: [{n:'page',t:'integer',d:'Page'},{n:'per_page',t:'integer',d:'Per page'},{n:'search',t:'string',d:'Search content'},{n:'user_id',t:'integer',d:'Filter by user'},{n:'group_id',t:'integer',d:'Filter by group'},{n:'component',t:'string',d:'activity, groups, friends'},{n:'type',t:'string',d:'activity_update, activity_comment'},{n:'scope',t:'string',d:'just-me, friends, groups, favorites'},{n:'display_comments',t:'string',d:'threaded, stream, false'}] },
+      { name: 'buddyboss_get_activity', desc: 'Get activity post by ID.', method: 'GET', endpoint: '/buddyboss/v1/activity/{id}',
+        params: [{n:'id',t:'integer',d:'Activity ID',r:true}] },
+      { name: 'buddyboss_create_activity', desc: 'Create an activity post.', method: 'POST', endpoint: '/buddyboss/v1/activity',
+        params: [{n:'content',t:'string',d:'Activity text',r:true},{n:'user_id',t:'integer',d:'Author ID'},{n:'component',t:'string',d:'activity or groups'},{n:'type',t:'string',d:'activity_update'},{n:'primary_item_id',t:'integer',d:'Group ID for group posts'}] },
+      { name: 'buddyboss_update_activity', desc: 'Update activity content.', method: 'PUT', endpoint: '/buddyboss/v1/activity/{id}',
+        params: [{n:'id',t:'integer',d:'Activity ID',r:true},{n:'content',t:'string',d:'New content'}] },
+      { name: 'buddyboss_delete_activity', desc: 'Delete an activity post.', method: 'DELETE', endpoint: '/buddyboss/v1/activity/{id}',
+        params: [{n:'id',t:'integer',d:'Activity ID',r:true}] },
+      { name: 'buddyboss_favorite_activity', desc: 'Toggle favorite on activity.', method: 'PUT', endpoint: '/buddyboss/v1/activity/{id}/favorite',
+        params: [{n:'id',t:'integer',d:'Activity ID',r:true}] }
+    ]
+  },
+  'Messages': {
+    color: 'var(--purple)', tools: [
+      { name: 'buddyboss_list_message_threads', desc: 'List message threads.', method: 'GET', endpoint: '/buddyboss/v1/messages',
+        params: [{n:'user_id',t:'integer',d:'Filter by user'},{n:'box',t:'string',d:'inbox, sentbox, starred'},{n:'type',t:'string',d:'all, read, unread'},{n:'page',t:'integer',d:'Page'},{n:'per_page',t:'integer',d:'Per page'}] },
+      { name: 'buddyboss_get_message_thread', desc: 'Get thread with all messages.', method: 'GET', endpoint: '/buddyboss/v1/messages/{id}',
+        params: [{n:'id',t:'integer',d:'Thread ID',r:true}] },
+      { name: 'buddyboss_send_message', desc: 'Send a message to recipients.', method: 'POST', endpoint: '/buddyboss/v1/messages',
+        params: [{n:'recipients',t:'string',d:'Comma-separated user IDs',r:true},{n:'subject',t:'string',d:'Message subject',r:true},{n:'message',t:'string',d:'Message body',r:true},{n:'sender_id',t:'integer',d:'Sender user ID'}] },
+      { name: 'buddyboss_delete_message_thread', desc: 'Delete a thread.', method: 'DELETE', endpoint: '/buddyboss/v1/messages/{id}',
+        params: [{n:'id',t:'integer',d:'Thread ID',r:true}] },
+      { name: 'buddyboss_mark_message_read', desc: 'Mark thread as read.', method: 'PUT', endpoint: '/buddyboss/v1/messages/{id}/read',
+        params: [{n:'id',t:'integer',d:'Thread ID',r:true}] }
+    ]
+  },
+  'Friends': {
+    color: 'var(--cyan)', tools: [
+      { name: 'buddyboss_list_friends', desc: 'List friendships for a user.', method: 'GET', endpoint: '/buddyboss/v1/friends',
+        params: [{n:'user_id',t:'integer',d:'User ID'},{n:'is_confirmed',t:'boolean',d:'Filter by status'},{n:'page',t:'integer',d:'Page'},{n:'per_page',t:'integer',d:'Per page'}] },
+      { name: 'buddyboss_add_friend', desc: 'Send friendship request.', method: 'POST', endpoint: '/buddyboss/v1/friends',
+        params: [{n:'initiator_id',t:'integer',d:'Sender user ID',r:true},{n:'friend_id',t:'integer',d:'Receiver user ID',r:true},{n:'force',t:'boolean',d:'Auto-accept'}] },
+      { name: 'buddyboss_remove_friend', desc: 'Remove a friendship.', method: 'DELETE', endpoint: '/buddyboss/v1/friends/{id}',
+        params: [{n:'id',t:'integer',d:'Friendship ID',r:true}] },
+      { name: 'buddyboss_list_friend_requests', desc: 'List pending friend requests.', method: 'GET', endpoint: '/buddyboss/v1/friends',
+        params: [{n:'user_id',t:'integer',d:'User ID',r:true},{n:'is_confirmed',t:'boolean',d:'Filter by status'}] }
+    ]
+  },
+  'Notifications': {
+    color: 'var(--yellow)', tools: [
+      { name: 'buddyboss_list_notifications', desc: 'List notifications with filtering.', method: 'GET', endpoint: '/buddyboss/v1/notifications',
+        params: [{n:'user_id',t:'integer',d:'User ID'},{n:'is_new',t:'boolean',d:'Only unread'},{n:'component_name',t:'string',d:'Component filter'},{n:'page',t:'integer',d:'Page'},{n:'per_page',t:'integer',d:'Per page'}] },
+      { name: 'buddyboss_get_notification', desc: 'Get notification by ID.', method: 'GET', endpoint: '/buddyboss/v1/notifications/{id}',
+        params: [{n:'id',t:'integer',d:'Notification ID',r:true}] },
+      { name: 'buddyboss_mark_notification_read', desc: 'Mark as read/unread.', method: 'PUT', endpoint: '/buddyboss/v1/notifications/{id}',
+        params: [{n:'id',t:'integer',d:'Notification ID',r:true},{n:'is_new',t:'boolean',d:'false=read, true=unread'}] },
+      { name: 'buddyboss_delete_notification', desc: 'Delete a notification.', method: 'DELETE', endpoint: '/buddyboss/v1/notifications/{id}',
+        params: [{n:'id',t:'integer',d:'Notification ID',r:true}] }
+    ]
+  },
+  'XProfile': {
+    color: 'var(--red)', tools: [
+      { name: 'buddyboss_list_xprofile_groups', desc: 'List profile field groups.', method: 'GET', endpoint: '/buddyboss/v1/xprofile/groups',
+        params: [{n:'fetch_fields',t:'boolean',d:'Include fields'}] },
+      { name: 'buddyboss_list_xprofile_fields', desc: 'List profile fields.', method: 'GET', endpoint: '/buddyboss/v1/xprofile/fields',
+        params: [{n:'profile_group_id',t:'integer',d:'Filter by group'},{n:'fetch_field_data',t:'boolean',d:'Include data'}] },
+      { name: 'buddyboss_get_xprofile_field', desc: 'Get profile field details.', method: 'GET', endpoint: '/buddyboss/v1/xprofile/fields/{id}',
+        params: [{n:'id',t:'integer',d:'Field ID',r:true},{n:'fetch_field_data',t:'boolean',d:'Include data'}] },
+      { name: 'buddyboss_get_xprofile_data', desc: 'Get user data for a field.', method: 'GET', endpoint: '/buddyboss/v1/xprofile/{fid}/data/{uid}',
+        params: [{n:'field_id',t:'integer',d:'Field ID',r:true},{n:'user_id',t:'integer',d:'User ID',r:true}] },
+      { name: 'buddyboss_update_xprofile_data', desc: 'Update user profile field data.', method: 'POST', endpoint: '/buddyboss/v1/xprofile/{fid}/data/{uid}',
+        params: [{n:'field_id',t:'integer',d:'Field ID',r:true},{n:'user_id',t:'integer',d:'User ID',r:true},{n:'value',t:'string',d:'New value',r:true}] }
+    ]
+  }
+};
+
+// ========== HANDSHAKE DATA ==========
+const handshakeSteps = [
+  { num: 1, title: 'Initialize — Client announces itself', dir: 'right',
+    req: { label: 'Client → Server', json: `{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-11-25",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "claude-code",
+      "version": "1.0.0"
+    }
+  },
+  "id": 1
+}` },
+    res: { label: 'Server → Client', json: `{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "protocolVersion": "2025-11-25",
+    "capabilities": { "tools": {} },
+    "serverInfo": {
+      "name": "buddyboss-mcp-server",
+      "version": "1.0.1"
+    }
+  }
+}` }
+  },
+  { num: 2, title: 'Initialized — Client confirms ready', dir: 'right',
+    req: { label: 'Client → Server (notification)', json: `{
+  "jsonrpc": "2.0",
+  "method": "notifications/initialized"
+}
+// Note: No "id" field = notification` },
+    res: { label: 'Server Response', json: `HTTP/1.1 202 Accepted
+Content-Length: 0
+
+// No body — notifications get no response` }
+  },
+  { num: 3, title: 'Tools List — Discover available tools', dir: 'right',
+    req: { label: 'Client → Server', json: `{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "id": 2
+}` },
+    res: { label: 'Server → Client (37 tools)', json: `{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "tools": [
+      {
+        "name": "buddyboss_list_members",
+        "description": "List members with filtering...",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "search": { "type": "string", ... },
+            "per_page": { "type": "integer", ... }
+          }
+        }
+      },
+      // ... 36 more tools
+    ]
+  }
+}` }
+  },
+  { num: 4, title: 'Tool Call — Execute a tool', dir: 'right',
+    req: { label: 'Client → Server', json: `{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "buddyboss_get_member",
+    "arguments": { "id": 42 }
+  },
+  "id": 3
+}` },
+    res: { label: 'Server → Client', json: `{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"id\":42,\"name\":\"Jane Smith\",\"email\":\"jane@example.com\",\"role\":\"subscriber\"}"
+      }
+    ]
+  }
+}` }
+  },
+  { num: 5, title: 'Error Handling — Tool not found', dir: 'right',
+    req: { label: 'Client → Server', json: `{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "buddyboss_nonexistent",
+    "arguments": {}
+  },
+  "id": 4
+}` },
+    res: { label: 'Server → Client (error)', json: `{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "error": {
+    "code": -32602,
+    "message": "Tool not found: buddyboss_nonexistent"
+  }
+}` }
+  }
+];
+
+// ========== AUTH FLOW DATA ==========
+const authSteps = [
+  { num: 1, title: 'Create Application Password',
+    desc: 'Navigate to <code>WP Admin → Users → Profile → Application Passwords</code>. Enter a name like "Claude MCP" and click Generate. Copy the generated password (spaces included).' },
+  { num: 2, title: 'Configure IDE with Basic Auth',
+    desc: 'In your IDE config (e.g., <code>claude_desktop_config.json</code>), set the Authorization header: <code>Authorization: Basic base64("username:app_password")</code>. The <code>mcp-remote</code> bridge passes this via the <code>MCP_HEADERS</code> env variable.' },
+  { num: 3, title: 'WordPress Validates Application Password',
+    desc: 'WordPress core intercepts the <code>Authorization: Basic</code> header automatically. It decodes the Base64, splits <code>username:password</code>, validates against <code>wp_application_passwords</code> user meta, and calls <code>wp_set_current_user()</code> if valid. Returns <code>401</code> if invalid.' },
+  { num: 4, title: 'REST_Controller Permission Check',
+    desc: '<code>check_permissions()</code> runs two checks:<br>1. <code>is_user_logged_in()</code> → Returns <code>401 bbmcp_unauthorized</code> if not<br>2. <code>current_user_can("manage_options")</code> → Returns <code>403 bbmcp_forbidden</code> if not admin<br>Both must pass to proceed.' },
+  { num: 5, title: 'Request Proceeds to MCP_Server',
+    desc: 'With auth confirmed, the controller extracts <code>$body = $request->get_body()</code> and <code>$user_id = get_current_user_id()</code>, then calls <code>$mcp_server->handle_request($body, $user_id)</code>. The user_id flows through to <code>Internal_REST_Client</code> for user context switching.' }
+];
+
+// ========== RENDER FUNCTIONS ==========
+
+function renderArchitecture() {
+  const container = document.getElementById('arch-layers');
+  let html = '';
+  layers.forEach((layer, i) => {
+    const expanded = state.expandedLayers.has(layer.id);
+    html += `<div class="arch-layer">
+      <div class="arch-box ${layer.cls} ${expanded ? 'expanded' : ''}" onclick="toggleLayer('${layer.id}')">
+        <div class="layer-header">
+          <div class="layer-num">${layer.num}</div>
+          <div class="layer-title">${layer.title}</div>
+          <div class="layer-subtitle">${layer.subtitle}</div>
+          <div class="layer-tag">${layer.tag}</div>
+        </div>
+        <div class="layer-details">
+          ${layer.details.map(d => `<div class="detail-item ${d.cls}">${d.text}</div>`).join('')}
+          ${layer.extra || ''}
+        </div>
+      </div>
+    </div>`;
+    if (i < layers.length - 1) {
+      const delay = i * 0.15;
+      html += `<div class="arch-arrow">
+        <div class="packet-track">
+          <div class="packet down" style="animation-delay:${delay}s"></div>
+          <div class="packet up" style="animation-delay:${delay + 0.6}s"></div>
+        </div>
+      </div>`;
+    }
+  });
+  container.innerHTML = html;
+}
+
+function toggleLayer(id) {
+  if (state.expandedLayers.has(id)) state.expandedLayers.delete(id);
+  else state.expandedLayers.add(id);
+  renderArchitecture();
+  updatePrompt();
+}
+
+function renderDataFlow() {
+  const scenario = scenarios[state.flowScenario];
+  const steps = scenario.steps;
+  const container = document.getElementById('flow-steps');
+  const dotsEl = document.getElementById('flowDots');
+
+  // Render dots
+  dotsEl.innerHTML = steps.map((_, i) => {
+    let cls = 'flow-dot';
+    if (i < state.flowStep) cls += ' done';
+    else if (i === state.flowStep) cls += ' active';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  // Render visible steps
+  let html = '';
+  steps.forEach((step, i) => {
+    const visible = i <= state.flowStep;
+    const dirLabel = step.dir === 'req' ? 'REQUEST' : step.dir === 'res' ? 'RESPONSE' : 'INTERNAL';
+    html += `<div class="flow-card ${visible ? 'visible fade-in' : 'hidden'}">
+      <div class="flow-card-header">
+        <div class="step-num" style="background:var(--${step.dir === 'req' ? 'orange' : step.dir === 'res' ? 'green' : 'blue'}-bg);color:var(--${step.dir === 'req' ? 'orange' : step.dir === 'res' ? 'green' : 'blue'})">${step.num}</div>
+        <div class="step-label">${step.label}</div>
+        <div class="flow-dir ${step.dir}">${dirLabel}</div>
+      </div>
+      <div class="flow-card-body">
+        ${step.desc ? `<div class="desc">${step.desc}</div>` : ''}
+        ${step.json ? `<pre class="mono">${syntaxHighlight(step.json)}</pre>` : ''}
+        ${step.actions ? `<ul class="action-list">${step.actions.map(a => `<li>${a}</li>`).join('')}</ul>` : ''}
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+
+  // Button states
+  document.getElementById('prevStep').disabled = state.flowStep <= 0;
+  document.getElementById('nextStep').disabled = state.flowStep >= steps.length - 1;
+}
+
+function renderHandshake() {
+  const container = document.getElementById('hs-steps');
+  let html = '';
+  handshakeSteps.forEach(step => {
+    html += `<div class="hs-step-group fade-in">
+      <div class="hs-step-title">
+        <div class="step-badge" style="background:var(--orange-bg);color:var(--orange)">${step.num}</div>
+        ${step.title}
+      </div>
+      <div class="hs-step-content">
+        <div class="hs-columns">
+          <div class="hs-json-box">
+            <div class="hs-json-header" style="color:var(--blue)">${step.req.label}</div>
+            <pre class="mono">${syntaxHighlight(step.req.json)}</pre>
+          </div>
+          <div class="hs-json-box">
+            <div class="hs-json-header" style="color:var(--orange)">${step.res.label}</div>
+            <pre class="mono">${syntaxHighlight(step.res.json)}</pre>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderCatalog() {
+  const container = document.getElementById('catalogGrid');
+  const filterContainer = document.getElementById('catalogFilter');
+  const search = state.catalogSearch.toLowerCase();
+  const filter = state.catalogFilter;
+
+  // Render filter buttons
+  const groups = Object.keys(toolCatalog);
+  let totalTools = 0;
+  groups.forEach(g => totalTools += toolCatalog[g].tools.length);
+
+  filterContainer.innerHTML = `<button class="catalog-filter-btn ${filter === 'all' ? 'active' : ''}" onclick="setCatalogFilter('all')">All (${totalTools})</button>` +
+    groups.map(g => `<button class="catalog-filter-btn ${filter === g ? 'active' : ''}" onclick="setCatalogFilter('${g}')">${g} (${toolCatalog[g].tools.length})</button>`).join('');
+
+  // Render tools
+  let html = '';
+  groups.forEach(groupName => {
+    if (filter !== 'all' && filter !== groupName) return;
+    const group = toolCatalog[groupName];
+    const tools = group.tools.filter(t =>
+      search === '' || t.name.includes(search) || t.desc.toLowerCase().includes(search)
+    );
+    if (tools.length === 0) return;
+
+    html += `<div class="catalog-group">
+      <div class="catalog-group-title" style="color:${group.color}">
+        ${groupName} <span class="gcnt">${tools.length} tools</span>
+      </div>
+      <div class="catalog-grid">
+        ${tools.map(t => {
+          const expanded = state.expandedTools.has(t.name);
+          const methodCls = t.method.toLowerCase();
+          return `<div class="tool-card ${expanded ? 'expanded' : ''}" onclick="toggleTool('${t.name}')">
+            <div class="tool-name">${t.name}</div>
+            <div class="tool-desc">${t.desc}</div>
+            <div class="tool-params">
+              ${t.params.map(p => `<div class="param-row">
+                <span class="param-name">${p.n}</span>
+                <span class="param-type">${p.t}</span>
+                ${p.r ? '<span class="param-req">REQUIRED</span>' : ''}
+                <span class="param-desc">${p.d}</span>
+              </div>`).join('')}
+              <div class="tool-endpoint">
+                <span class="http-method ${methodCls}">${t.method}</span>
+                <code>${t.endpoint}</code>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderAuth() {
+  const container = document.getElementById('authFlow');
+  let html = '<div class="auth-flow">';
+  authSteps.forEach((step, i) => {
+    html += `<div class="auth-step fade-in">
+      <div class="auth-step-header">
+        <div class="auth-step-num">${step.num}</div>
+        <div class="auth-step-title">${step.title}</div>
+      </div>
+      <div class="auth-step-desc">${step.desc}</div>
+    </div>`;
+    if (i < authSteps.length - 1) {
+      html += `<div class="auth-connector"><svg viewBox="0 0 20 20"><path d="M10 2 L10 18" stroke="var(--border)" stroke-width="2"/><path d="M6 14 L10 18 L14 14" fill="none" stroke="var(--orange)" stroke-width="2"/></svg></div>`;
+    }
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ========== HELPERS ==========
+
+function syntaxHighlight(json) {
+  return json
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+    .replace(/: "([^"]*)"/g, ': <span class="json-str">"$1"</span>')
+    .replace(/: (\d+)/g, ': <span class="json-num">$1</span>')
+    .replace(/: (true|false)/g, ': <span class="json-bool">$1</span>')
+    .replace(/: (null)/g, ': <span class="json-null">$1</span>')
+    .replace(/(\/\/[^\n]*)/g, '<span class="json-null">$1</span>');
+}
+
+function switchView(view) {
+  state.activeView = view;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
+  updatePrompt();
+}
+
+function setCatalogFilter(f) {
+  state.catalogFilter = f;
+  renderCatalog();
+  updatePrompt();
+}
+
+function toggleTool(name) {
+  if (state.expandedTools.has(name)) state.expandedTools.delete(name);
+  else state.expandedTools.add(name);
+  renderCatalog();
+}
+
+// ========== PROMPT ==========
+
+function updatePrompt() {
+  const parts = [];
+  parts.push('BuddyBoss MCP Server is a WordPress plugin that implements the Model Context Protocol (MCP) using JSON-RPC 2.0 over Streamable HTTP.');
+  parts.push('');
+
+  if (state.activeView === 'arch') {
+    parts.push('Architecture layers (top to bottom):');
+    parts.push('1. AI IDE Clients → 2. HTTP Transport → 3. REST_Controller (auth + routing) → 4. MCP_Server (JSON-RPC dispatch) → 5. Tool_Registry (37 tools) → 6. Tool Providers (7 classes) → 7. Internal_REST_Client (rest_do_request) → 8. BuddyBoss REST API');
+    if (state.expandedLayers.size > 0) {
+      parts.push('');
+      parts.push('Expanded layers:');
+      state.expandedLayers.forEach(id => {
+        const layer = layers.find(l => l.id === id);
+        if (layer) parts.push(`- ${layer.title}: ${layer.subtitle}`);
+      });
+    }
+  } else if (state.activeView === 'flow') {
+    const scenario = scenarios[state.flowScenario];
+    parts.push(`Data flow scenario: ${scenario.title}`);
+    parts.push(`Currently viewing step ${state.flowStep + 1} of ${scenario.steps.length}`);
+  } else if (state.activeView === 'handshake') {
+    parts.push('MCP Protocol handshake: initialize → notifications/initialized → tools/list → tools/call');
+    parts.push('Protocol version: 2025-11-25 (Streamable HTTP)');
+  } else if (state.activeView === 'catalog') {
+    let total = 0;
+    Object.values(toolCatalog).forEach(g => total += g.tools.length);
+    parts.push(`Tool catalog: ${total} tools across 7 providers (Members, Groups, Activity, Messages, Friends, Notifications, XProfile)`);
+    if (state.catalogFilter !== 'all') parts.push(`Filtered by: ${state.catalogFilter}`);
+  } else if (state.activeView === 'auth') {
+    parts.push('Auth flow: App Password → Basic Auth header → WP validates → REST_Controller checks manage_options → MCP_Server proceeds');
+  }
+
+  document.getElementById('promptText').textContent = parts.join('\n');
+}
+
+function copyPrompt() {
+  const text = document.getElementById('promptText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+    }, 2000);
+  });
+}
+
+// ========== EVENT LISTENERS ==========
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchView(tab.dataset.view));
+});
+
+document.getElementById('nextStep').addEventListener('click', () => {
+  const max = scenarios[state.flowScenario].steps.length - 1;
+  if (state.flowStep < max) { state.flowStep++; renderDataFlow(); updatePrompt(); }
+});
+
+document.getElementById('prevStep').addEventListener('click', () => {
+  if (state.flowStep > 0) { state.flowStep--; renderDataFlow(); updatePrompt(); }
+});
+
+document.getElementById('resetFlow').addEventListener('click', () => {
+  state.flowStep = 0; renderDataFlow(); updatePrompt();
+});
+
+document.getElementById('scenarioSelect').addEventListener('change', (e) => {
+  state.flowScenario = e.target.value;
+  state.flowStep = 0;
+  renderDataFlow();
+  updatePrompt();
+});
+
+document.getElementById('catalogSearch').addEventListener('input', (e) => {
+  state.catalogSearch = e.target.value;
+  renderCatalog();
+});
+
+// ========== INIT ==========
+renderArchitecture();
+renderDataFlow();
+renderHandshake();
+renderCatalog();
+renderAuth();
+updatePrompt();
+</script>
+</body>
+</html>
