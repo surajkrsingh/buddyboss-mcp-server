@@ -268,7 +268,7 @@ class Members_Tools extends Tool_Base {
    Name: "Claude MCP" → Generate → Copy password
 
 2. IDE config uses Basic Auth:
-   Authorization: Basic base64("admin:xxxx xxxx xxxx xxxx")
+   Authorization: Basic base64("YOUR_USERNAME:YOUR_APP_PASSWORD")
 
 3. WordPress validates automatically:
    WP core intercepts Authorization header

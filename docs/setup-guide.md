@@ -38,25 +38,18 @@
 
 ---
 
-## IDE Connection Configs
+## Connection Config (Claude Code CLI)
 
-### Claude Desktop
-
-File: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
-File: `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+File: `.mcp.json` (project root) or `~/.claude.json`
 
 ```json
 {
   "mcpServers": {
     "buddyboss": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp"
-      ],
-      "env": {
-        "MCP_HEADERS": "Authorization:Basic BASE64_CREDENTIALS"
+      "type": "http",
+      "url": "https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp",
+      "headers": {
+        "Authorization": "Basic BASE64_CREDENTIALS"
       }
     }
   }
@@ -65,84 +58,7 @@ File: `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
 
 **Generate BASE64_CREDENTIALS:**
 ```bash
-echo -n "admin:xxxx xxxx xxxx xxxx xxxx xxxx" | base64
-```
-
-> **Note:** Claude Desktop uses stdio transport natively. The `mcp-remote` npm package bridges stdio to HTTP, allowing connection to our remote endpoint. Node.js is required on the developer's machine (not the WordPress server).
-
----
-
-### Cursor IDE
-
-File: `.cursor/mcp.json` (project root) or global settings
-
-```json
-{
-  "mcpServers": {
-    "buddyboss": {
-      "url": "https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp",
-      "headers": {
-        "Authorization": "Basic BASE64_CREDENTIALS"
-      }
-    }
-  }
-}
-```
-
----
-
-### Claude Code (CLI)
-
-File: `~/.claude.json` or project `.mcp.json`
-
-```json
-{
-  "mcpServers": {
-    "buddyboss": {
-      "type": "url",
-      "url": "https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp",
-      "headers": {
-        "Authorization": "Basic BASE64_CREDENTIALS"
-      }
-    }
-  }
-}
-```
-
----
-
-### Claude.ai (Pro/Team/Enterprise)
-
-1. Go to Claude.ai → Settings → Connectors
-2. Add Custom Connector
-3. URL: `https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp`
-4. Auth: Basic Authentication
-5. Enter username + application password
-
-> Claude.ai has native support for remote MCP servers — no bridge needed.
-
----
-
-### VS Code (with MCP extension)
-
-File: `.vscode/mcp.json`
-
-```json
-{
-  "mcpServers": {
-    "buddyboss": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp"
-      ],
-      "env": {
-        "MCP_HEADERS": "Authorization:Basic BASE64_CREDENTIALS"
-      }
-    }
-  }
-}
+echo -n "YOUR_USERNAME:YOUR_APP_PASSWORD" | base64
 ```
 
 ---
@@ -154,7 +70,7 @@ File: `.vscode/mcp.json`
 ```bash
 # Test initialize
 curl -s -X POST https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp \
-  -u "admin:xxxx xxxx xxxx xxxx xxxx xxxx" \
+  -u "YOUR_USERNAME:YOUR_APP_PASSWORD" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}},"id":1}' \
   | python3 -m json.tool
@@ -174,7 +90,7 @@ curl -s -X POST https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp \
 ```bash
 # Test tools/list
 curl -s -X POST https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp \
-  -u "admin:xxxx xxxx xxxx xxxx xxxx xxxx" \
+  -u "YOUR_USERNAME:YOUR_APP_PASSWORD" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":2}' \
   | python3 -m json.tool
@@ -185,7 +101,7 @@ curl -s -X POST https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp \
 ```bash
 # Test tool call
 curl -s -X POST https://yoursite.com/wp-json/buddyboss-mcp/v1/mcp \
-  -u "admin:xxxx xxxx xxxx xxxx xxxx xxxx" \
+  -u "YOUR_USERNAME:YOUR_APP_PASSWORD" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"buddyboss_list_members","arguments":{"per_page":3}},"id":3}' \
   | python3 -m json.tool
