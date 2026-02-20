@@ -187,6 +187,28 @@ Authorization: Basic base64(username:app_password)
 
 The plugin implements [MCP specification 2025-03-26](https://spec.modelcontextprotocol.io/specification/2025-03-26/) over JSON-RPC 2.0 using Streamable HTTP transport.
 
+### Why Streamable HTTP?
+
+MCP defines three transport mechanisms. We use **Streamable HTTP** — the current recommended transport introduced in the `2025-03-26` spec revision:
+
+| Transport | Status | How It Works | Our Use? |
+|-----------|--------|-------------|----------|
+| **stdio** | Current | stdin/stdout pipes for local processes | No — plugin runs on a remote WordPress server |
+| **HTTP+SSE** | **Deprecated** (`2024-11-05`) | Two endpoints: GET for SSE stream + POST for messages. Required persistent connections | No — deprecated and infrastructure-unfriendly |
+| **Streamable HTTP** | **Current** (`2025-03-26`) | Single endpoint, POST for messages, optional GET/SSE for streaming | **Yes** |
+
+Our implementation uses the **POST-only subset** of Streamable HTTP — no SSE streaming, no sessions, no GET endpoint. This is valid per the MCP spec because:
+
+- **Tools-only server** — we don't need server-initiated messages or notifications
+- **Stateless** — each request is self-contained (auth via Application Passwords)
+- **No long-running operations** — all tool calls return immediately
+
+This keeps the server simple, works behind any reverse proxy or CDN, and connects to AI clients via:
+
+```
+Claude Code (stdio) → mcp-remote bridge → HTTP POST → WordPress REST API → MCP Server
+```
+
 ### Supported Methods
 
 | Method | Purpose |
