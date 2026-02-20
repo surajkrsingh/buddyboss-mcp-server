@@ -109,7 +109,7 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 					return $this->success_response( new \stdClass(), $id );
 
 				default:
-					return $this->error_response( -32601, 'Method not found: ' . $method, $id );
+					return $this->error_response( -32601, 'Method not found: ' . sanitize_text_field( $method ), $id );
 			}
 		}
 
@@ -181,6 +181,7 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 				return $this->error_response( -32602, 'Invalid params: missing tool name', $id );
 			}
 
+			$tool_name = sanitize_text_field( $tool_name );
 			$tool_info = $this->tool_registry->get_tool( $tool_name );
 
 			if ( null === $tool_info ) {
@@ -204,6 +205,7 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 					$id
 				);
 			} catch ( \InvalidArgumentException $e ) {
+				// Validation errors are safe to show — they contain parameter names only.
 				return $this->success_response(
 					array(
 						'content' => array(
@@ -217,12 +219,26 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 					$id
 				);
 			} catch ( \Exception $e ) {
+				// Log full details server-side; return a generic message to the client.
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log(
+						sprintf(
+							'[BuddyBoss MCP] Tool "%s" error: %s in %s:%d',
+							$tool_name,
+							$e->getMessage(),
+							$e->getFile(),
+							$e->getLine()
+						)
+					);
+				}
+
 				return $this->success_response(
 					array(
 						'content' => array(
 							array(
 								'type' => 'text',
-								'text' => 'Error: ' . $e->getMessage(),
+								'text' => 'An unexpected error occurred while executing the tool.',
 							),
 						),
 						'isError' => true,

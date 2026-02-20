@@ -115,17 +115,40 @@ if ( ! class_exists( 'BuddyBossMCP\\Tools\\Tool_Base' ) ) {
 		}
 
 		/**
+		 * Maximum allowed string parameter length.
+		 *
+		 * @var int
+		 * @since 1.0.0
+		 */
+		const MAX_STRING_LENGTH = 1000;
+
+		/**
 		 * Get a string parameter with default.
+		 *
+		 * Sanitizes and truncates the value to prevent
+		 * oversized input from degrading performance.
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array  $args    Arguments.
-		 * @param string $key     Parameter key.
-		 * @param string $default Default value.
+		 * @param array  $args       Arguments.
+		 * @param string $key        Parameter key.
+		 * @param string $default    Default value.
+		 * @param int    $max_length Maximum allowed length. Default 1000.
 		 * @return string
 		 */
-		protected function get_string( $args, $key, $default = '' ) {
-			return isset( $args[ $key ] ) ? sanitize_text_field( $args[ $key ] ) : $default;
+		protected function get_string( $args, $key, $default = '', $max_length = 0 ) {
+			if ( ! isset( $args[ $key ] ) ) {
+				return $default;
+			}
+
+			$value = sanitize_text_field( $args[ $key ] );
+			$limit = $max_length > 0 ? $max_length : self::MAX_STRING_LENGTH;
+
+			if ( mb_strlen( $value ) > $limit ) {
+				$value = mb_substr( $value, 0, $limit );
+			}
+
+			return $value;
 		}
 
 		/**
