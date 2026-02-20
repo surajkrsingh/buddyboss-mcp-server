@@ -3,7 +3,7 @@
  * Plugin Name: BuddyBoss MCP Server
  * Plugin URI:  https://github.com/surajkrsingh/buddyboss-mcp-server
  * Description: Exposes an MCP (Model Context Protocol) server endpoint so AI-powered IDEs can manage your BuddyBoss platform via natural language.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Suraj Singh
  * Author URI:  https://github.com/surajkrsingh
  * Text Domain: buddyboss-mcp-server
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants.
  */
-define( 'BBMCP_VERSION', '1.0.0' );
+define( 'BBMCP_VERSION', '1.0.1' );
 define( 'BBMCP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BBMCP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BBMCP_PLUGIN_FILE', __FILE__ );
