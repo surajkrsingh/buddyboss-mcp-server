@@ -126,7 +126,7 @@ add_filter( 'bbmcp_tool_providers', function( $providers ) {
 } );
 ```
 
-Your tool class must extend `BuddyBossMCP\Tools\Tool_Base`. See [docs/architecture.md](docs/architecture.md) for the full example.
+Your tool class must extend `BuddyBossMCP\Tools\Tool_Base`. See the [Extending Tools Guide](docs/extending-tools.md) for the full API reference, a complete WordPress Posts example, and tips.
 
 ---
 
@@ -158,19 +158,29 @@ Common issues and fixes are covered in the [Setup Guide](docs/setup-guide.md#tro
 | [Architecture](docs/architecture.md) | System design, request flow, extending |
 | [MCP Protocol](docs/mcp-protocol.md) | JSON-RPC 2.0 implementation details |
 | [Tool Reference](docs/tool-reference.md) | All 65 tools with parameters |
+| [Extending Tools](docs/extending-tools.md) | Add your own custom MCP tools |
 | [API Research](docs/api-research.md) | BuddyBoss REST API endpoint analysis |
 
 ---
 
-## Comparison with BuddyPress MCP
+## Why BuddyBoss MCP Server?
 
-| Aspect | [BuddyPress MCP](https://github.com/vapvarun/buddypress-mcp) | BuddyBoss MCP Server |
-|--------|--------------------------|-------------------------------|
-| Installation | Clone repo, npm install, configure .env | Upload ZIP, activate |
-| Runtime | Separate Node.js process | Runs inside WordPress |
-| API access | External HTTP calls | Internal `rest_do_request()` — zero overhead |
-| Dependencies | `@modelcontextprotocol/sdk`, `node-fetch` | None |
-| Tools | 36 (BuddyPress) | 65 (BuddyBoss features included) |
+Most MCP servers for WordPress run as **separate Node.js processes** that make external HTTP calls back to your site. This plugin takes a fundamentally different approach — it runs **natively inside WordPress**.
+
+| | External MCP Server (Node.js) | BuddyBoss MCP Server (This Plugin) |
+|--|-------------------------------|-------------------------------------|
+| **Installation** | Clone repo, `npm install`, configure `.env` | Upload ZIP, activate — done |
+| **Runtime** | Separate Node.js process alongside WordPress | Runs inside WordPress itself |
+| **API calls** | External HTTP requests to `wp-json/` (network latency + overhead) | Internal `rest_do_request()` — zero HTTP overhead |
+| **Authentication** | Environment variables, custom token management | WordPress Application Passwords (built-in, revocable) |
+| **Permissions** | Must replicate WordPress permission checks | Inherits WordPress + BuddyBoss permissions automatically |
+| **Dependencies** | `@modelcontextprotocol/sdk`, `node-fetch`, Node.js runtime | None — pure PHP, no external dependencies |
+| **Server management** | Must keep Node.js process running (PM2, systemd, etc.) | Always available when WordPress is running |
+| **Updates** | Manual git pull + npm install | Standard WordPress plugin update flow |
+| **Tools** | 36 (BuddyPress only) | 65 (BuddyBoss-specific features included) |
+| **Extensibility** | Write JavaScript, restart server | WordPress filter hook — no restart needed |
+
+**The key advantage:** because the plugin lives inside WordPress, every tool call goes through the same validation, sanitization, and permission checks that BuddyBoss uses for its own REST API. There's no separate process to manage, no external HTTP calls to secure, and no permissions to duplicate.
 
 ---
 
