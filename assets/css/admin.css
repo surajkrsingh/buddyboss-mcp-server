@@ -1,0 +1,175 @@
+/**
+ * BuddyBoss MCP Server — Admin styles.
+ *
+ * @package BuddyBossMCP
+ * @since   1.0.0
+ */
+
+.bbmcp-settings {
+	max-width: 900px;
+}
+
+/* Cards */
+.bbmcp-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px 24px;
+	margin-bottom: 20px;
+}
+
+.bbmcp-card h2 {
+	margin-top: 0;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
+}
+
+/* Status table */
+.bbmcp-status-table {
+	border-collapse: collapse;
+	margin-bottom: 16px;
+}
+
+.bbmcp-status-table td {
+	padding: 6px 16px 6px 0;
+	vertical-align: middle;
+}
+
+.bbmcp-status-table td:first-child {
+	font-weight: 600;
+	min-width: 140px;
+	color: #50575e;
+}
+
+/* Badge */
+.bbmcp-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.bbmcp-badge--active {
+	background: #d4edda;
+	color: #155724;
+}
+
+/* Setup steps */
+.bbmcp-setup-steps li {
+	margin-bottom: 8px;
+	line-height: 1.6;
+}
+
+/* Tabs */
+.bbmcp-tabs {
+	display: flex;
+	gap: 0;
+	border-bottom: 2px solid #c3c4c7;
+	margin-bottom: 0;
+}
+
+.bbmcp-tab {
+	background: none;
+	border: 1px solid transparent;
+	border-bottom: none;
+	padding: 8px 16px;
+	cursor: pointer;
+	font-size: 13px;
+	color: #50575e;
+	margin-bottom: -2px;
+	border-radius: 4px 4px 0 0;
+}
+
+.bbmcp-tab:hover {
+	color: #135e96;
+}
+
+.bbmcp-tab--active {
+	background: #fff;
+	border-color: #c3c4c7;
+	border-bottom-color: #fff;
+	color: #1d2327;
+	font-weight: 600;
+}
+
+/* Tab content */
+.bbmcp-tab-content {
+	display: none;
+	padding: 16px 0 0;
+}
+
+.bbmcp-tab-content--active {
+	display: block;
+}
+
+/* Code blocks */
+.bbmcp-code-block {
+	position: relative;
+	background: #1d2327;
+	border-radius: 4px;
+	padding: 16px;
+	margin: 8px 0 12px;
+}
+
+.bbmcp-code-block pre {
+	margin: 0;
+	padding: 0;
+	background: none;
+	color: #e4e6e8;
+	font-size: 13px;
+	line-height: 1.6;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+/* Copy button */
+.bbmcp-copy-btn {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background: #3c434a;
+	color: #c3c4c7;
+	border: 1px solid #50575e;
+	border-radius: 3px;
+	padding: 3px 10px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.bbmcp-copy-btn:hover {
+	background: #50575e;
+	color: #fff;
+}
+
+.bbmcp-copy-btn.bbmcp-copied {
+	background: #00a32a;
+	color: #fff;
+	border-color: #00a32a;
+}
+
+/* Test button */
+.bbmcp-test-btn {
+	margin-right: 10px !important;
+}
+
+.bbmcp-test-result {
+	font-weight: 600;
+}
+
+.bbmcp-test-result.bbmcp-success {
+	color: #00a32a;
+}
+
+.bbmcp-test-result.bbmcp-error {
+	color: #d63638;
+}
+
+/* Tools table */
+.bbmcp-card .wp-list-table code {
+	font-size: 12px;
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+}
