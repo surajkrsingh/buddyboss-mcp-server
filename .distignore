@@ -1,0 +1,20 @@
+# Dev/IDE config
+.claude/
+.mcp.json
+.git/
+.gitignore
+.distignore
+.editorconfig
+.DS_Store
+*.code-workspace
+.env
+
+# GitHub
+.github/
+
+# Documentation (dev-only — setup guide is in the admin UI)
+docs/
+CLAUDE.md
+
+# Screenshots (only needed for GitHub README, not the plugin ZIP)
+assets/screenshots/
