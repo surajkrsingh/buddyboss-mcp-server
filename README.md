@@ -171,6 +171,8 @@ GPLv2 or later — [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.o
 
 ## Credits
 
-- **[BuddyBoss](https://www.buddyboss.com/)** — Community platform for WordPress
+Built on top of the **[BuddyBoss Platform](https://www.buddyboss.com/)** — the leading community and online course platform for WordPress. This plugin would not exist without BuddyBoss's comprehensive REST API and thriving ecosystem.
+
+- **[BuddyBoss](https://www.buddyboss.com/)** — Community platform powering this integration
 - **[Model Context Protocol](https://modelcontextprotocol.io/)** — Open standard by Anthropic
 - **[BuddyPress MCP](https://github.com/vapvarun/buddypress-mcp)** — Reference implementation by vapvarun
