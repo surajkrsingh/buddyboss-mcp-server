@@ -64,6 +64,7 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 		 */
 		protected function register_providers() {
 			// Core tools — always loaded.
+			$this->providers[] = new Tools\Members_Tools();
 			$this->providers[] = new Tools\Groups_Tools();
 			$this->providers[] = new Tools\Activity_Tools();
 
