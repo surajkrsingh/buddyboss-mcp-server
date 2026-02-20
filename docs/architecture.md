@@ -307,7 +307,6 @@ Stored in: `bbmcp_enabled_phases` wp_option (array of phase strings).
 | Authorization | `manage_options` capability check |
 | Input | WordPress sanitization functions on all tool params |
 | Permissions | `rest_do_request()` enforces BuddyBoss endpoint permissions |
-| Rate limiting | Transient-based, 200 requests/hour per user (configurable) |
 | Errors | No sensitive data exposed in error messages |
 | Uninstall | Clean removal of all options, transients, sessions |
 
@@ -321,4 +320,4 @@ Stored in: `bbmcp_enabled_phases` wp_option (array of phase strings).
 4. **Settings Page** — Admin UI, connection snippets, phase toggles, test button
 5. **BuddyBoss-Specific Tools** — Media, Video, Document, Moderation (18 tools)
 6. **Advanced Tools** — Forums, LearnDash (10 tools)
-7. **Polish** — Rate limiting, uninstall cleanup, readme.txt
+7. **Polish** — Uninstall cleanup, readme.txt

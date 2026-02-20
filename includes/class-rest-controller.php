@@ -48,22 +48,6 @@ if ( ! class_exists( 'BuddyBossMCP\\REST_Controller' ) ) {
 		protected $mcp_server;
 
 		/**
-		 * Maximum requests per minute per user.
-		 *
-		 * @var int
-		 * @since 1.0.0
-		 */
-		const RATE_LIMIT = 60;
-
-		/**
-		 * Rate limit window in seconds.
-		 *
-		 * @var int
-		 * @since 1.0.0
-		 */
-		const RATE_LIMIT_WINDOW = 60;
-
-		/**
 		 * Constructor.
 		 *
 		 * @since 1.0.0
@@ -126,49 +110,6 @@ if ( ! class_exists( 'BuddyBossMCP\\REST_Controller' ) ) {
 					array( 'status' => 403 )
 				);
 			}
-
-			$rate_check = $this->check_rate_limit();
-			if ( is_wp_error( $rate_check ) ) {
-				return $rate_check;
-			}
-
-			return true;
-		}
-
-		/**
-		 * Check rate limit for the current user.
-		 *
-		 * Uses a WordPress transient to track request count per user
-		 * within a sliding window. Returns WP_Error if limit exceeded.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @return true|\WP_Error True if within limit, WP_Error if exceeded.
-		 */
-		protected function check_rate_limit() {
-			$user_id       = get_current_user_id();
-			$transient_key = 'bbmcp_rate_' . $user_id;
-			$current_count = (int) get_transient( $transient_key );
-
-			/**
-			 * Filter the maximum requests per rate limit window.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param int $limit   Maximum requests allowed. Default 60.
-			 * @param int $user_id Current user ID.
-			 */
-			$limit = apply_filters( 'bbmcp_rate_limit', self::RATE_LIMIT, $user_id );
-
-			if ( $current_count >= $limit ) {
-				return new \WP_Error(
-					'bbmcp_rate_limit_exceeded',
-					__( 'Rate limit exceeded. Please try again shortly.', 'buddyboss-mcp-server' ),
-					array( 'status' => 429 )
-				);
-			}
-
-			set_transient( $transient_key, $current_count + 1, self::RATE_LIMIT_WINDOW );
 
 			return true;
 		}

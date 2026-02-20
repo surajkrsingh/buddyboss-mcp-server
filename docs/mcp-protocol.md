@@ -281,7 +281,6 @@ Server returns HTTP 202 Accepted with empty body for notifications.
 | Code | Message | When |
 |------|---------|------|
 | -32000 | Tool execution failed | Tool threw exception |
-| -32001 | Rate limit exceeded | Too many requests |
 | -32002 | BuddyBoss not available | BB Platform not active |
 
 ---
