@@ -126,6 +126,7 @@ if ( ! class_exists( 'BuddyBossMCP\\Plugin' ) ) {
 			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-messages-tools.php';
 			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-friends-tools.php';
 			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-notifications-tools.php';
+			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-xprofile-tools.php';
 		}
 
 		/**
