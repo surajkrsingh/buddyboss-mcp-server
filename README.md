@@ -96,143 +96,35 @@ This outputs a string like `eW91ci11c2VybmFtZTp4eHh4IHh4eHg=` — use this as `Y
 
 ## Available Tools (65)
 
-All tools follow the naming convention: `buddyboss_{verb}_{resource}`
+All tools follow the naming convention: `buddyboss_{verb}_{resource}`. See the [docs/knowledge/](docs/knowledge/) directory for full parameter details on each tool.
 
 ### Phase 1: Core Tools (37) — Always Enabled
 
-#### Members (5 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_members` | List members with filtering by role, status, search, or member type |
-| `buddyboss_get_member` | Get detailed member profile by ID |
-| `buddyboss_create_member` | Create a new member account |
-| `buddyboss_update_member` | Update member profile details |
-| `buddyboss_delete_member` | Delete a member account |
-
-#### Groups (8 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_groups` | List groups with filtering by status, search, user, or type |
-| `buddyboss_get_group` | Get group details by ID |
-| `buddyboss_create_group` | Create a new group (public, private, or hidden) |
-| `buddyboss_update_group` | Update group name, description, or status |
-| `buddyboss_delete_group` | Permanently delete a group and all its data |
-| `buddyboss_list_group_members` | List members of a group, filterable by role |
-| `buddyboss_add_group_member` | Add a user to a group as admin, mod, or member |
-| `buddyboss_remove_group_member` | Remove a user from a group |
-
-#### Activity (6 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_activities` | List activity feed with scope, user, group, and component filters |
-| `buddyboss_get_activity` | Get a single activity post by ID |
-| `buddyboss_create_activity` | Create a new activity post (user or group) |
-| `buddyboss_update_activity` | Update activity content |
-| `buddyboss_delete_activity` | Delete an activity post |
-| `buddyboss_favorite_activity` | Toggle favorite on an activity |
-
-#### Messages (5 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_message_threads` | List message threads (inbox, sentbox, starred) |
-| `buddyboss_get_message_thread` | Get a thread with all its messages |
-| `buddyboss_send_message` | Send a new message to one or more recipients |
-| `buddyboss_delete_message_thread` | Delete a message thread |
-| `buddyboss_mark_message_read` | Mark a thread as read |
-
-#### Friends (4 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_friends` | List friendships for a user |
-| `buddyboss_add_friend` | Send a friendship request (with optional auto-accept) |
-| `buddyboss_remove_friend` | Remove a friendship |
-| `buddyboss_list_friend_requests` | List pending friendship requests |
-
-#### Notifications (4 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_notifications` | List notifications with filters |
-| `buddyboss_get_notification` | Get notification by ID |
-| `buddyboss_mark_notification_read` | Mark notification as read or unread |
-| `buddyboss_delete_notification` | Delete a notification |
-
-#### Extended Profiles / XProfile (5 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_xprofile_groups` | List profile field groups |
-| `buddyboss_list_xprofile_fields` | List profile fields in a group |
-| `buddyboss_get_xprofile_field` | Get profile field details |
-| `buddyboss_get_xprofile_data` | Get a user's profile field data |
-| `buddyboss_update_xprofile_data` | Update a user's profile field data |
+| Category | Tools | Documentation |
+|----------|-------|---------------|
+| **Members** | 5 tools — list, get, create, update, delete members | [members.md](docs/knowledge/members.md) |
+| **Groups** | 8 tools — CRUD groups + list/add/remove members | [groups.md](docs/knowledge/groups.md) |
+| **Activity** | 6 tools — activity feed CRUD + favorites | [activity.md](docs/knowledge/activity.md) |
+| **Messages** | 5 tools — threads, send, delete, mark read | [messages.md](docs/knowledge/messages.md) |
+| **Friends** | 4 tools — list, add, remove friends + requests | [friends.md](docs/knowledge/friends.md) |
+| **Notifications** | 4 tools — list, get, mark read, delete | [notifications.md](docs/knowledge/notifications.md) |
+| **XProfile** | 5 tools — profile field groups, fields, data | [xprofile.md](docs/knowledge/xprofile.md) |
 
 ### Phase 2: BuddyBoss Tools (18) — Toggleable
 
-#### Media / Photos (5 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_media` | List photos/media with privacy and album filters |
-| `buddyboss_get_media` | Get media by ID |
-| `buddyboss_upload_media` | Upload a photo |
-| `buddyboss_update_media` | Update media metadata or privacy |
-| `buddyboss_delete_media` | Delete media |
-
-#### Video (4 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_videos` | List videos |
-| `buddyboss_get_video` | Get video by ID |
-| `buddyboss_upload_video` | Upload a video |
-| `buddyboss_delete_video` | Delete a video |
-
-#### Documents (5 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_documents` | List documents with folder and group filters |
-| `buddyboss_get_document` | Get document by ID |
-| `buddyboss_upload_document` | Upload a document |
-| `buddyboss_delete_document` | Delete a document |
-| `buddyboss_list_document_folders` | List document folders |
-
-#### Moderation (4 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_moderation_reports` | List reported content |
-| `buddyboss_report_content` | Report content or a user |
-| `buddyboss_block_member` | Block a member |
-| `buddyboss_unblock_member` | Unblock a member |
+| Category | Tools | Documentation |
+|----------|-------|---------------|
+| **Media / Photos** | 5 tools — list, get, upload, update, delete | [media.md](docs/knowledge/media.md) |
+| **Video** | 4 tools — list, get, upload, delete | [video.md](docs/knowledge/video.md) |
+| **Documents** | 5 tools — list, get, upload, delete + folders | [documents.md](docs/knowledge/documents.md) |
+| **Moderation** | 4 tools — reports, block/unblock members | [moderation.md](docs/knowledge/moderation.md) |
 
 ### Phase 3: Advanced Tools (10) — Toggleable
 
-#### Forums (6 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_forums` | List forums |
-| `buddyboss_get_forum` | Get forum by ID |
-| `buddyboss_create_topic` | Create a new forum topic |
-| `buddyboss_get_topic` | Get topic by ID |
-| `buddyboss_create_reply` | Reply to a topic |
-| `buddyboss_list_replies` | List replies in a topic |
-
-#### LearnDash Integration (4 tools)
-
-| Tool | Description |
-|------|-------------|
-| `buddyboss_list_courses` | List LearnDash courses |
-| `buddyboss_get_course` | Get course details |
-| `buddyboss_enroll_user` | Enroll a user in a course |
-| `buddyboss_get_course_progress` | Get user's course progress |
+| Category | Tools | Documentation |
+|----------|-------|---------------|
+| **Forums** | 6 tools — forums, topics, replies | [forums.md](docs/knowledge/forums.md) |
+| **LearnDash** | 4 tools — courses, enrollment, progress | [learndash.md](docs/knowledge/learndash.md) |
 
 ---
 
@@ -433,7 +325,21 @@ buddyboss-mcp-server/
     ├── mcp-protocol.md
     ├── tool-reference.md
     ├── setup-guide.md
-    └── api-research.md
+    ├── api-research.md
+    └── knowledge/                       # Per-tool-type documentation
+        ├── members.md
+        ├── groups.md
+        ├── activity.md
+        ├── messages.md
+        ├── friends.md
+        ├── notifications.md
+        ├── xprofile.md
+        ├── media.md
+        ├── video.md
+        ├── documents.md
+        ├── moderation.md
+        ├── forums.md
+        └── learndash.md
 ```
 
 ---
