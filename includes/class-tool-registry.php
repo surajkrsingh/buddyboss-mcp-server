@@ -48,6 +48,14 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 		protected $definitions = array();
 
 		/**
+		 * Tool definitions grouped by provider label.
+		 *
+		 * @var array
+		 * @since 1.0.0
+		 */
+		protected $grouped_definitions = array();
+
+		/**
 		 * Constructor.
 		 *
 		 * @since 1.0.0
@@ -92,6 +100,12 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 			foreach ( $this->providers as $provider ) {
 				$provider_tools = $provider->register_tools();
 
+				$class = get_class( $provider );
+				$short = substr( strrchr( $class, '\\' ), 1 );
+				$label = str_replace( array( '_Tools', '_' ), array( '', ' ' ), $short );
+
+				$group_defs = array();
+
 				foreach ( $provider_tools as $tool ) {
 					$name = $tool['name'];
 
@@ -100,12 +114,17 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 						'method'   => $tool['method'],
 					);
 
-					$this->definitions[] = array(
+					$def = array(
 						'name'        => $tool['name'],
 						'description' => $tool['description'],
 						'inputSchema' => $tool['inputSchema'],
 					);
+
+					$this->definitions[] = $def;
+					$group_defs[]        = $def;
 				}
+
+				$this->grouped_definitions[ $label ] = $group_defs;
 			}
 		}
 
@@ -118,6 +137,17 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 		 */
 		public function get_tool_definitions() {
 			return $this->definitions;
+		}
+
+		/**
+		 * Get tool definitions grouped by provider label.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @return array Associative array keyed by group label.
+		 */
+		public function get_grouped_definitions() {
+			return $this->grouped_definitions;
 		}
 
 		/**

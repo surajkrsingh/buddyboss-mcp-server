@@ -1,175 +1,1678 @@
 /**
  * BuddyBoss MCP Server — Admin styles.
  *
+ * Design inspired by Stitch project screen 3.
+ *
  * @package BuddyBossMCP
  * @since   1.0.0
  */
 
-.bbmcp-settings {
-	max-width: 900px;
+/* ---------------------------------------------------------------
+   Variables
+   --------------------------------------------------------------- */
+:root {
+	--bbmcp-primary: #2563eb;
+	--bbmcp-primary-hover: #1d4ed8;
+	--bbmcp-border: #e5e7eb;
+	--bbmcp-border-light: #f3f4f6;
+	--bbmcp-text-dark: #0f172a;
+	--bbmcp-text: #334155;
+	--bbmcp-text-muted: #64748b;
+	--bbmcp-text-light: #94a3b8;
+	--bbmcp-bg-page: #f9fafb;
+	--bbmcp-bg-card: #fff;
+	--bbmcp-bg-section-header: rgba(248, 250, 252, 0.5);
+	--bbmcp-radius: 4px;
 }
 
-/* Cards */
-.bbmcp-card {
+/* ---------------------------------------------------------------
+   Admin header (in_admin_header hook)
+   --------------------------------------------------------------- */
+.bbmcp-admin-header {
 	background: #fff;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
-	padding: 20px 24px;
-	margin-bottom: 20px;
+	margin-left: -20px;
+	padding: 0 16px;
+	border-bottom: 1px solid var(--bbmcp-border);
+	height: 56px;
+	display: flex;
+	align-items: center;
 }
 
-.bbmcp-card h2 {
-	margin-top: 0;
-	padding-bottom: 10px;
-	border-bottom: 1px solid #eee;
+.bbmcp-admin-header-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	max-width: 1440px;
+	margin: 0 auto;
 }
 
-/* Status table */
-.bbmcp-status-table {
-	border-collapse: collapse;
-	margin-bottom: 16px;
+.bbmcp-admin-header-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
 }
 
-.bbmcp-status-table td {
-	padding: 6px 16px 6px 0;
-	vertical-align: middle;
+.bbmcp-admin-header-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 6px;
+	background: var(--bbmcp-primary);
+	color: #fff;
+	font-size: 20px;
 }
 
-.bbmcp-status-table td:first-child {
+.bbmcp-admin-header-icon .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	color: #fff;
+}
+
+.bbmcp-admin-header-title {
+	margin: 0;
+	padding: 0;
+	font-size: 13px;
 	font-weight: 600;
-	min-width: 140px;
-	color: #50575e;
+	color: var(--bbmcp-text-dark);
+	line-height: 1;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
 }
 
-/* Badge */
-.bbmcp-badge {
-	display: inline-block;
-	padding: 2px 10px;
-	border-radius: 12px;
-	font-size: 12px;
+.bbmcp-admin-header-badges {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding-left: 12px;
+	border-left: 1px solid var(--bbmcp-border);
+}
+
+.bbmcp-version-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 2px;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	background: #eff6ff;
+	color: var(--bbmcp-primary);
+	border: 1px solid #dbeafe;
+	letter-spacing: 0.02em;
+}
+
+.bbmcp-admin-header-right {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/* Header connection status */
+.bbmcp-header-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	padding: 4px 12px;
+	border-radius: 2px;
 }
 
-.bbmcp-badge--active {
-	background: #d4edda;
-	color: #155724;
+.bbmcp-header-status-dot {
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
 }
 
-/* Setup steps */
-.bbmcp-setup-steps li {
-	margin-bottom: 8px;
-	line-height: 1.6;
+.bbmcp-header-status--success {
+	color: #059669;
+	background: #ecfdf5;
+	border: 1px solid #d1fae5;
 }
 
-/* Tabs */
-.bbmcp-tabs {
+.bbmcp-header-status-dot--success {
+	background: #059669;
+	box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+}
+
+.bbmcp-header-status--error {
+	color: #dc2626;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+}
+
+.bbmcp-header-status-dot--error {
+	background: #dc2626;
+	box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+/* ---------------------------------------------------------------
+   Page wrapper
+   --------------------------------------------------------------- */
+.bbmcp-settings {
+	max-width: 1440px;
+	margin: 0 auto;
+	padding: 20px 20px 20px 5px;
+}
+
+/* ---------------------------------------------------------------
+   Two-column layout
+   --------------------------------------------------------------- */
+.bbmcp-columns {
 	display: flex;
-	gap: 0;
-	border-bottom: 2px solid #c3c4c7;
-	margin-bottom: 0;
+	gap: 20px;
+	align-items: flex-start;
+}
+
+.bbmcp-main {
+	flex: 1;
+	min-width: 0;
+}
+
+.bbmcp-sidebar {
+	width: 320px;
+	flex-shrink: 0;
+}
+
+/* Column stacking moved to responsive section at bottom */
+
+/* ---------------------------------------------------------------
+   Cards
+   --------------------------------------------------------------- */
+.bbmcp-card {
+	background: var(--bbmcp-bg-card);
+	border: 1px solid var(--bbmcp-border);
+	border-radius: var(--bbmcp-radius);
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+.bbmcp-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--bbmcp-border);
+	background: var(--bbmcp-bg-section-header);
+}
+
+.bbmcp-card-header h2 {
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--bbmcp-text-muted);
+	border: none;
+}
+
+.bbmcp-card-body {
+	padding: 16px;
+}
+
+/* ---------------------------------------------------------------
+   Endpoint row (full-width, single line)
+   --------------------------------------------------------------- */
+.bbmcp-endpoint-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 14px;
+	background: #f8fafc;
+	border: 1px solid var(--bbmcp-border-light);
+	border-radius: var(--bbmcp-radius);
+	margin-bottom: 12px;
+}
+
+.bbmcp-endpoint-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--bbmcp-text-light);
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+.bbmcp-endpoint-label .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.bbmcp-endpoint-url {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.bbmcp-endpoint-url code {
+	font-size: 12.5px;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+	color: var(--bbmcp-primary);
+	font-weight: 600;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	background: none;
+	border: none;
+	padding: 0;
+}
+
+.bbmcp-endpoint-url .bbmcp-copy-inline.bbmcp-copy-btn {
+	position: relative;
+	top: auto;
+	right: auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border-radius: var(--bbmcp-radius);
+	background: #fff;
+	border: 1px solid var(--bbmcp-border);
+	color: var(--bbmcp-text-light);
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: all 0.15s ease;
+}
+
+.bbmcp-endpoint-url .bbmcp-copy-inline.bbmcp-copy-btn:hover {
+	background: #eff6ff;
+	border-color: var(--bbmcp-primary);
+	color: var(--bbmcp-primary);
+}
+
+.bbmcp-endpoint-url .bbmcp-copy-inline.bbmcp-copy-btn.bbmcp-copied {
+	background: #ecfdf5;
+	border-color: #059669;
+	color: #059669;
+}
+
+.bbmcp-endpoint-url .bbmcp-copy-inline .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+/* ---------------------------------------------------------------
+   Status card — metric row
+   --------------------------------------------------------------- */
+.bbmcp-status-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+}
+
+/* Status grid stacking moved to responsive section at bottom */
+
+.bbmcp-status-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid var(--bbmcp-border-light);
+	border-radius: var(--bbmcp-radius);
+	transition: background 0.15s ease;
+}
+
+.bbmcp-status-item:hover {
+	background: #f8fafc;
+}
+
+.bbmcp-status-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: var(--bbmcp-radius);
+	background: #f1f5f9;
+	color: var(--bbmcp-text-light);
+	flex-shrink: 0;
+}
+
+.bbmcp-status-icon .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.bbmcp-status-label {
+	display: block;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	color: var(--bbmcp-text-light);
+	margin-bottom: 2px;
+}
+
+.bbmcp-status-value {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--bbmcp-text-dark);
+}
+
+.bbmcp-status-value .bbmcp-value-suffix {
+	font-size: 11px;
+	font-weight: 400;
+	color: var(--bbmcp-text-light);
+	margin-left: 4px;
+}
+
+/* ---------------------------------------------------------------
+   Test connection button
+   --------------------------------------------------------------- */
+.bbmcp-test-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--bbmcp-primary);
+	background: none;
+	border: none;
+	padding: 4px 8px;
+	border-radius: var(--bbmcp-radius);
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.bbmcp-test-btn:hover {
+	background: #eff6ff;
+}
+
+.bbmcp-test-btn .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.bbmcp-test-result {
+	font-size: 12px;
+	font-weight: 600;
+	margin-left: 8px;
+}
+
+.bbmcp-test-result.bbmcp-success,
+.bbmcp-test-result.bbmcp-error {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--bbmcp-border-light);
+}
+
+.bbmcp-result-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 12px;
+	border-radius: 2px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.bbmcp-result-badge .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.bbmcp-result-badge--success {
+	background: #ecfdf5;
+	color: #059669;
+	border: 1px solid #d1fae5;
+}
+
+.bbmcp-result-badge--error {
+	background: #fef2f2;
+	color: #dc2626;
+	border: 1px solid #fecaca;
+}
+
+.bbmcp-result-error-msg {
+	font-size: 12px;
+	color: #dc2626;
+	font-weight: 500;
+}
+
+/* ---------------------------------------------------------------
+   Setup steps (stepper)
+   --------------------------------------------------------------- */
+.bbmcp-stepper {
+	padding: 24px;
+}
+
+.bbmcp-step {
+	display: flex;
+	gap: 24px;
+	padding-bottom: 28px;
+	position: relative;
+}
+
+.bbmcp-step:last-child {
+	padding-bottom: 0;
+}
+
+.bbmcp-step-indicator {
+	flex-shrink: 0;
+	position: relative;
+}
+
+/* Vertical connecting line */
+.bbmcp-step:not(:last-child) .bbmcp-step-indicator::after {
+	content: '';
+	position: absolute;
+	left: 11px;
+	top: 24px;
+	bottom: -28px;
+	width: 2px;
+	background-color: var(--bbmcp-primary);
+}
+
+.bbmcp-step:last-child .bbmcp-step-indicator::after {
+	display: none;
+}
+
+.bbmcp-step-number {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: var(--bbmcp-primary);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
+	position: relative;
+	z-index: 1;
+}
+
+.bbmcp-step-content {
+	flex: 1;
+	padding-top: 2px;
+}
+
+.bbmcp-step-header {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	margin-bottom: 4px;
+}
+
+.bbmcp-step-title {
+	font-size: 12px;
+	font-weight: 700;
+	color: #334155;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	margin: 0;
+}
+
+.bbmcp-step-action {
+	font-size: 10px;
+	font-weight: 700;
+	color: var(--bbmcp-primary);
+	text-transform: uppercase;
+	text-decoration: none;
+}
+
+.bbmcp-step-action:hover {
+	text-decoration: underline;
+	color: var(--bbmcp-primary-hover);
+}
+
+.bbmcp-step-desc {
+	font-size: 12px;
+	color: var(--bbmcp-text-muted);
+	line-height: 1.5;
+	margin: 0;
+	max-width: 520px;
+}
+
+/* Warning callout inside step */
+.bbmcp-step-warning {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 8px 12px;
+	background: #fffbeb;
+	border: 1px solid #fef3c7;
+	border-radius: var(--bbmcp-radius);
+	margin-top: 8px;
+	max-width: 400px;
+}
+
+.bbmcp-step-warning .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	color: #f59e0b;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+.bbmcp-step-warning p {
+	font-size: 11px;
+	font-weight: 500;
+	color: #92400e;
+	line-height: 1.4;
+	margin: 0;
+}
+
+.bbmcp-step-warning strong {
+	font-weight: 700;
+}
+
+/* Username box inside step */
+.bbmcp-step-username {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background: #f8fafc;
+	border: 1px solid var(--bbmcp-border);
+	border-radius: var(--bbmcp-radius);
+	margin-top: 8px;
+}
+
+.bbmcp-step-username .bbmcp-username-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--bbmcp-text-light);
+}
+
+.bbmcp-step-username code {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--bbmcp-text-dark);
+	letter-spacing: 0.03em;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+	background: none;
+	padding: 0;
+	border: none;
+}
+
+/* ---------------------------------------------------------------
+   Tabs (Connection Config)
+   --------------------------------------------------------------- */
+.bbmcp-tabs {
+	overflow: hidden;
+}
+
+.bbmcp-tab-bar {
+	display: flex;
+	padding: 0 16px;
+	border-bottom: 1px solid var(--bbmcp-border);
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 }
 
 .bbmcp-tab {
+	flex: none;
+	padding: 12px 16px;
 	background: none;
-	border: 1px solid transparent;
-	border-bottom: none;
-	padding: 8px 16px;
+	border: none;
+	border-bottom: 2px solid transparent;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--bbmcp-text-light);
 	cursor: pointer;
-	font-size: 13px;
-	color: #50575e;
-	margin-bottom: -2px;
-	border-radius: 4px 4px 0 0;
+	white-space: nowrap;
+	transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .bbmcp-tab:hover {
-	color: #135e96;
+	color: var(--bbmcp-text);
 }
 
 .bbmcp-tab--active {
-	background: #fff;
-	border-color: #c3c4c7;
-	border-bottom-color: #fff;
-	color: #1d2327;
-	font-weight: 600;
+	color: var(--bbmcp-primary);
+	border-bottom-color: var(--bbmcp-primary);
 }
 
-/* Tab content */
-.bbmcp-tab-content {
+.bbmcp-tab-panel {
 	display: none;
-	padding: 16px 0 0;
 }
 
-.bbmcp-tab-content--active {
+.bbmcp-tab-panel--active {
 	display: block;
 }
 
-/* Code blocks */
+/* ---------------------------------------------------------------
+   Tab file hint
+   --------------------------------------------------------------- */
+.bbmcp-tab-file-hint {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	background: #f8fafc;
+	border-bottom: 1px solid var(--bbmcp-border-light);
+	font-size: 12px;
+	color: var(--bbmcp-text-muted);
+}
+
+.bbmcp-tab-file-hint .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	color: var(--bbmcp-text-light);
+}
+
+.bbmcp-tab-file-hint code {
+	font-size: 11.5px;
+	font-weight: 600;
+	color: var(--bbmcp-text);
+	background: none;
+	padding: 0;
+	border: none;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+}
+
+/* ---------------------------------------------------------------
+   Code blocks
+   --------------------------------------------------------------- */
 .bbmcp-code-block {
 	position: relative;
-	background: #1d2327;
-	border-radius: 4px;
-	padding: 16px;
-	margin: 8px 0 12px;
+	background: #0f172a;
+	border-radius: 8px;
+	padding: 20px;
+	margin: 16px;
 }
 
 .bbmcp-code-block pre {
 	margin: 0;
 	padding: 0;
 	background: none;
-	color: #e4e6e8;
+	color: #cbd5e1;
 	font-size: 13px;
-	line-height: 1.6;
+	line-height: 1.7;
 	white-space: pre-wrap;
 	word-break: break-all;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", monospace;
 }
 
-/* Copy button */
+/* ---------------------------------------------------------------
+   Copy button
+   --------------------------------------------------------------- */
 .bbmcp-copy-btn {
 	position: absolute;
 	top: 8px;
 	right: 8px;
-	background: #3c434a;
-	color: #c3c4c7;
-	border: 1px solid #50575e;
-	border-radius: 3px;
-	padding: 3px 10px;
-	font-size: 12px;
+	z-index: 1;
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--bbmcp-text-muted);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: var(--bbmcp-radius);
+	padding: 4px 10px;
+	font-size: 11px;
+	font-weight: 500;
 	cursor: pointer;
+	transition: all 0.15s ease;
 }
 
 .bbmcp-copy-btn:hover {
-	background: #50575e;
+	background: rgba(255, 255, 255, 0.1);
 	color: #fff;
 }
 
 .bbmcp-copy-btn.bbmcp-copied {
-	background: #00a32a;
-	color: #fff;
-	border-color: #00a32a;
+	background: #059669;
+	color: #ecfdf5;
+	border-color: #059669;
 }
 
-/* Test button */
-.bbmcp-test-btn {
-	margin-right: 10px !important;
+/* ---------------------------------------------------------------
+   Compatibility note
+   --------------------------------------------------------------- */
+.bbmcp-compat-note {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0 16px 12px;
+	padding: 12px 14px;
+	background: #f0fdf4;
+	border: 1px solid #dcfce7;
+	border-radius: var(--bbmcp-radius);
 }
 
-.bbmcp-test-result {
+.bbmcp-compat-note .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: #059669;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+.bbmcp-compat-note p {
+	font-size: 12px;
+	color: #166534;
+	line-height: 1.5;
+	margin: 0;
+}
+
+.bbmcp-compat-note strong {
+	font-weight: 700;
+}
+
+.bbmcp-compat-note code {
+	font-size: 11px;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+	background: #dcfce7;
+	color: #14532d;
+	padding: 1px 5px;
+	border-radius: 3px;
 	font-weight: 600;
 }
 
-.bbmcp-test-result.bbmcp-success {
-	color: #00a32a;
+/* ---------------------------------------------------------------
+   Security tip
+   --------------------------------------------------------------- */
+.bbmcp-security-tip {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 0 16px 16px;
+	padding: 12px;
+	background: rgba(37, 99, 235, 0.03);
+	border: 1px solid rgba(37, 99, 235, 0.1);
+	border-radius: var(--bbmcp-radius);
 }
 
-.bbmcp-test-result.bbmcp-error {
-	color: #d63638;
+.bbmcp-security-tip .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	color: var(--bbmcp-primary);
+	flex-shrink: 0;
+	margin-top: 1px;
 }
 
-/* Tools table */
-.bbmcp-card .wp-list-table code {
+.bbmcp-security-tip p {
 	font-size: 12px;
-	background: #f0f0f1;
+	color: #334155;
+	line-height: 1.4;
+	margin: 0;
+}
+
+.bbmcp-security-tip strong {
+	font-weight: 700;
+}
+
+/* Base64 helper */
+.bbmcp-base64-helper {
+	margin: -4px 16px 16px;
+	padding: 10px 14px;
+	background: #fffbeb;
+	border: 1px solid #fef3c7;
+	border-radius: var(--bbmcp-radius);
+	font-size: 12px;
+	color: #92400e;
+}
+
+.bbmcp-base64-helper code {
+	background: #fef3c7;
 	padding: 2px 6px;
 	border-radius: 3px;
+	font-size: 11.5px;
+	color: #78350f;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+}
+
+/* ---------------------------------------------------------------
+   Registered Tools — toolbar, filters, cards
+   --------------------------------------------------------------- */
+.bbmcp-tools-count-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 10px;
+	border-radius: 10px;
+	font-size: 10px;
+	font-weight: 700;
+	background: #eff6ff;
+	color: var(--bbmcp-primary);
+	border: 1px solid #dbeafe;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.bbmcp-tools-toolbar {
+	padding: 14px 16px;
+	border-bottom: 1px solid var(--bbmcp-border-light);
+}
+
+.bbmcp-tools-search-wrap {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.bbmcp-search-icon {
+	position: absolute;
+	left: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 15px;
+	height: 15px;
+	color: var(--bbmcp-text-light);
+	pointer-events: none;
+	z-index: 1;
+	flex-shrink: 0;
+}
+
+#bbmcp-tool-search.bbmcp-tools-search {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin: 0;
+	padding: 10px 14px 10px 40px;
+	border: 1px solid var(--bbmcp-border);
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.4;
+	color: var(--bbmcp-text-dark);
+	background: #fff;
+	outline: none;
+	box-sizing: border-box;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+#bbmcp-tool-search.bbmcp-tools-search:focus {
+	border-color: var(--bbmcp-primary);
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+#bbmcp-tool-search.bbmcp-tools-search:focus + .bbmcp-search-icon {
+	color: var(--bbmcp-primary);
+}
+
+#bbmcp-tool-search.bbmcp-tools-search::placeholder {
+	color: var(--bbmcp-text-light);
+	font-size: 13px;
+	font-weight: 400;
+}
+
+/* Category filter pills */
+.bbmcp-tool-filters {
+	display: flex;
+	gap: 6px;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--bbmcp-border-light);
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.bbmcp-tool-filter {
+	flex: none;
+	padding: 4px 12px;
+	border-radius: 20px;
+	font-size: 11px;
+	font-weight: 600;
+	background: #f1f5f9;
+	color: var(--bbmcp-text-muted);
+	border: 1px solid transparent;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: all 0.15s ease;
+}
+
+.bbmcp-tool-filter:hover {
+	background: #e2e8f0;
+	color: var(--bbmcp-text);
+}
+
+.bbmcp-tool-filter--active {
+	background: var(--bbmcp-primary);
+	color: #fff;
+	border-color: var(--bbmcp-primary);
+}
+
+.bbmcp-tool-filter--active:hover {
+	background: var(--bbmcp-primary-hover);
+	color: #fff;
+}
+
+/* Tool cards list */
+.bbmcp-tools-list {
+	padding: 12px 16px;
+	max-height: 600px;
+	overflow-y: auto;
+}
+
+.bbmcp-tool-card {
+	border: 1px solid var(--bbmcp-border-light);
+	border-radius: var(--bbmcp-radius);
+	padding: 14px;
+	margin-bottom: 10px;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bbmcp-tool-card:last-child {
+	margin-bottom: 0;
+}
+
+.bbmcp-tool-card:hover {
+	border-color: var(--bbmcp-border);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Tool card header */
+.bbmcp-tool-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 6px;
+}
+
+.bbmcp-tool-name-badge {
+	font-size: 11.5px;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+	font-weight: 600;
+	background: #f0f6ff;
+	color: #1e40af;
+	padding: 3px 8px;
+	border-radius: var(--bbmcp-radius);
+	border: 1px solid #dbeafe;
+	word-break: break-all;
+}
+
+.bbmcp-tool-group-badge {
+	flex-shrink: 0;
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: #f1f5f9;
+	color: var(--bbmcp-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.bbmcp-tool-card-desc {
+	font-size: 12px;
+	color: var(--bbmcp-text);
+	line-height: 1.5;
+	margin: 0 0 10px;
+}
+
+/* Parameters section */
+.bbmcp-tool-params {
+	margin-bottom: 10px;
+	border: 1px solid var(--bbmcp-border-light);
+	border-radius: var(--bbmcp-radius);
+	overflow: hidden;
+}
+
+.bbmcp-tool-params-label {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--bbmcp-text-light);
+	padding: 6px 10px;
+	background: #fafbfc;
+	border-bottom: 1px solid var(--bbmcp-border-light);
+}
+
+.bbmcp-tool-params-list {
+	padding: 0;
+}
+
+.bbmcp-param-row {
+	padding: 7px 10px;
+	border-bottom: 1px solid var(--bbmcp-border-light);
+}
+
+.bbmcp-param-row:last-child {
+	border-bottom: none;
+}
+
+.bbmcp-param-meta {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-bottom: 2px;
+}
+
+.bbmcp-param-name {
+	font-size: 11px;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+	font-weight: 600;
+	color: var(--bbmcp-text-dark);
+	background: none;
+	padding: 0;
+	border: none;
+}
+
+.bbmcp-param-type {
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	padding: 1px 5px;
+	border-radius: 2px;
+	background: #f1f5f9;
+	color: var(--bbmcp-text-muted);
+}
+
+.bbmcp-param-type--string {
+	background: #eff6ff;
+	color: #1e40af;
+}
+
+.bbmcp-param-type--integer {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.bbmcp-param-type--boolean {
+	background: #ecfdf5;
+	color: #059669;
+}
+
+.bbmcp-param-required {
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	padding: 1px 5px;
+	border-radius: 2px;
+	background: #fef2f2;
+	color: #dc2626;
+}
+
+.bbmcp-param-desc {
+	font-size: 11px;
+	color: var(--bbmcp-text-muted);
+	line-height: 1.4;
+}
+
+/* Example toggle */
+.bbmcp-tool-example {
+	margin-top: 2px;
+}
+
+.bbmcp-tool-example-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--bbmcp-text-light);
+	background: none;
+	border: none;
+	cursor: pointer;
+	border-radius: var(--bbmcp-radius);
+	transition: color 0.15s ease, background 0.15s ease;
+}
+
+.bbmcp-tool-example-toggle:hover {
+	color: var(--bbmcp-primary);
+	background: #eff6ff;
+}
+
+.bbmcp-tool-example-toggle .dashicons {
+	font-size: 13px;
+	width: 13px;
+	height: 13px;
+}
+
+.bbmcp-example-arrow {
+	transition: transform 0.2s ease;
+}
+
+.bbmcp-tool-example-code {
+	margin-top: 6px;
+}
+
+.bbmcp-tool-example-code pre {
+	margin: 0;
+	padding: 12px;
+	background: #0f172a;
+	color: #cbd5e1;
+	font-size: 11.5px;
+	line-height: 1.6;
+	border-radius: var(--bbmcp-radius);
+	white-space: pre-wrap;
+	word-break: break-all;
+	font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+}
+
+/* Empty state */
+.bbmcp-tools-empty {
+	text-align: center;
+	padding: 32px 16px;
+}
+
+.bbmcp-tools-empty .dashicons {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	color: var(--bbmcp-border);
+	margin-bottom: 8px;
+}
+
+.bbmcp-tools-empty p {
+	font-size: 12px;
+	color: var(--bbmcp-text-light);
+	margin: 0;
+}
+
+/* ---------------------------------------------------------------
+   Sidebar widgets
+   --------------------------------------------------------------- */
+.bbmcp-widget {
+	background: var(--bbmcp-bg-card);
+	border: 1px solid var(--bbmcp-border);
+	border-radius: var(--bbmcp-radius);
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+.bbmcp-widget-header {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--bbmcp-border);
+	background: var(--bbmcp-bg-section-header);
+}
+
+.bbmcp-widget-header h3 {
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--bbmcp-text-muted);
+	border: none;
+}
+
+/* Resource links */
+.bbmcp-resource-list {
+	list-style: none;
+	margin: 0;
+	padding: 8px;
+}
+
+.bbmcp-resource-list li {
+	margin: 0;
+	padding: 0;
+}
+
+.bbmcp-resource-list li a {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 12px;
+	border-radius: var(--bbmcp-radius);
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--bbmcp-text);
+	text-decoration: none;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bbmcp-resource-list li a:hover {
+	background: #eff6ff;
+	color: var(--bbmcp-primary);
+}
+
+.bbmcp-resource-list li a .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	color: var(--bbmcp-text-light);
+	transition: color 0.15s ease;
+}
+
+.bbmcp-resource-list li a:hover .dashicons {
+	color: var(--bbmcp-primary);
+}
+
+.bbmcp-resource-list li a.bbmcp-link-danger {
+	color: #ef4444;
+}
+
+.bbmcp-resource-list li a.bbmcp-link-danger:hover {
+	background: #fef2f2;
+	color: #dc2626;
+}
+
+.bbmcp-resource-list li a.bbmcp-link-danger .dashicons {
+	color: #f87171;
+}
+
+.bbmcp-resource-list li a.bbmcp-link-danger:hover .dashicons {
+	color: #dc2626;
+}
+
+/* ---------------------------------------------------------------
+   System info table
+   --------------------------------------------------------------- */
+.bbmcp-sysinfo-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.bbmcp-sysinfo-table tr {
+	border-bottom: 1px solid var(--bbmcp-border-light);
+}
+
+.bbmcp-sysinfo-table tr:last-child {
+	border-bottom: none;
+}
+
+.bbmcp-sysinfo-table td {
+	padding: 10px 0;
+	vertical-align: middle;
+}
+
+.bbmcp-sysinfo-table td:first-child {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	color: var(--bbmcp-text-light);
+}
+
+.bbmcp-sysinfo-table td:last-child {
+	font-size: 12px;
+	font-weight: 600;
+	color: #334155;
+	text-align: right;
+}
+
+/* ---------------------------------------------------------------
+   Integration help widget
+   --------------------------------------------------------------- */
+.bbmcp-help-widget {
+	background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%);
+	border: 1px solid #dbeafe;
+	border-radius: var(--bbmcp-radius);
+	padding: 24px 20px;
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+.bbmcp-help-widget-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--bbmcp-primary);
+	margin-bottom: 14px;
+}
+
+.bbmcp-help-widget-icon .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	color: #fff;
+}
+
+.bbmcp-help-widget-title {
+	margin: 0 0 8px;
+	padding: 0;
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--bbmcp-text-dark);
+	border: none;
+}
+
+.bbmcp-help-widget-desc {
+	font-size: 12px;
+	color: var(--bbmcp-text-muted);
+	line-height: 1.6;
+	margin: 0 0 16px;
+}
+
+.bbmcp-help-widget-features {
+	display: flex;
+	justify-content: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-bottom: 18px;
+}
+
+.bbmcp-help-feature {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 3px 10px;
+	border-radius: 20px;
+	font-size: 11px;
+	font-weight: 600;
+	background: #fff;
+	color: var(--bbmcp-text);
+	border: 1px solid var(--bbmcp-border);
+}
+
+.bbmcp-help-feature .dashicons {
+	font-size: 13px;
+	width: 13px;
+	height: 13px;
+	color: #059669;
+}
+
+.bbmcp-help-widget-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	width: 100%;
+	padding: 10px 16px;
+	border-radius: var(--bbmcp-radius);
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #fff;
+	background: var(--bbmcp-primary);
+	text-decoration: none;
+	transition: background 0.15s ease;
+}
+
+.bbmcp-help-widget-btn:hover {
+	background: var(--bbmcp-primary-hover);
+	color: #fff;
+}
+
+.bbmcp-help-widget-btn .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	transition: transform 0.15s ease;
+}
+
+.bbmcp-help-widget-btn:hover .dashicons {
+	transform: translateX(3px);
+}
+
+/* ---------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------- */
+
+/* Tablet & small desktop */
+@media screen and (max-width: 1100px) {
+	.bbmcp-columns {
+		flex-direction: column;
+	}
+
+	.bbmcp-sidebar {
+		width: 100%;
+	}
+
+	.bbmcp-admin-header {
+		margin-left: -10px;
+		padding: 0 12px;
+	}
+
+	.bbmcp-settings {
+		padding: 16px 12px 16px 2px;
+	}
+}
+
+/* Mobile */
+@media screen and (max-width: 782px) {
+	/* Admin header */
+	.bbmcp-admin-header {
+		height: auto;
+		min-height: 48px;
+		padding: 8px 10px;
+		margin-left: -10px;
+	}
+
+	.bbmcp-admin-header-inner {
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.bbmcp-admin-header-left {
+		gap: 8px;
+	}
+
+	.bbmcp-admin-header-badges {
+		padding-left: 8px;
+	}
+
+	.bbmcp-admin-header-title {
+		font-size: 12px;
+	}
+
+	/* Page wrapper */
+	.bbmcp-settings {
+		padding: 12px 8px 12px 0;
+	}
+
+	/* Endpoint row */
+	.bbmcp-endpoint-row {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		padding: 10px 12px;
+	}
+
+	.bbmcp-endpoint-url {
+		width: 100%;
+		min-width: 0;
+	}
+
+	.bbmcp-endpoint-url code {
+		font-size: 11px;
+	}
+
+	/* Status grid */
+	.bbmcp-status-grid {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+
+	/* Card header */
+	.bbmcp-card-header {
+		padding: 10px 12px;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	/* Stepper */
+	.bbmcp-stepper {
+		padding: 16px 12px;
+	}
+
+	.bbmcp-step {
+		gap: 14px;
+		padding-bottom: 20px;
+	}
+
+	.bbmcp-step:not(:last-child) .bbmcp-step-indicator::after {
+		bottom: -20px;
+	}
+
+	.bbmcp-step-header {
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.bbmcp-step-desc {
+		font-size: 11px;
+	}
+
+	.bbmcp-step-warning {
+		max-width: 100%;
+	}
+
+	.bbmcp-step-username {
+		flex-wrap: wrap;
+		gap: 4px;
+	}
+
+	/* Tabs */
+	.bbmcp-tab-bar {
+		padding: 0 10px;
+	}
+
+	.bbmcp-tab {
+		padding: 10px 12px;
+		font-size: 10px;
+	}
+
+	/* Code blocks */
+	.bbmcp-code-block {
+		padding: 14px 12px;
+		margin: 12px 10px;
+		border-radius: 6px;
+	}
+
+	.bbmcp-code-block pre {
+		font-size: 11px;
+		line-height: 1.6;
+	}
+
+	.bbmcp-copy-btn {
+		position: static;
+		display: block;
+		margin-bottom: 10px;
+		margin-left: auto;
+		width: fit-content;
+	}
+
+	/* Notes & tips */
+	.bbmcp-compat-note,
+	.bbmcp-security-tip {
+		margin: 0 10px 10px;
+		padding: 10px 12px;
+	}
+
+	.bbmcp-base64-helper {
+		margin: -4px 10px 12px;
+		padding: 8px 10px;
+		font-size: 11px;
+	}
+
+	.bbmcp-base64-helper code {
+		font-size: 10px;
+		word-break: break-all;
+	}
+
+	/* Tool filters */
+	.bbmcp-tool-filters {
+		padding: 10px 12px;
+		gap: 5px;
+	}
+
+	.bbmcp-tool-filter {
+		padding: 4px 10px;
+		font-size: 10px;
+	}
+
+	/* Tools toolbar / search */
+	.bbmcp-tools-toolbar {
+		padding: 10px 12px;
+	}
+
+	/* Tool cards */
+	.bbmcp-tools-list {
+		padding: 10px 12px;
+	}
+
+	.bbmcp-tool-card {
+		padding: 10px;
+	}
+
+	.bbmcp-tool-card-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+	}
+
+	.bbmcp-tool-name-badge {
+		font-size: 10.5px;
+	}
+
+	.bbmcp-tool-card-desc {
+		font-size: 11px;
+	}
+
+	.bbmcp-param-meta {
+		gap: 4px;
+	}
+
+	.bbmcp-param-name {
+		font-size: 10px;
+	}
+
+	.bbmcp-param-desc {
+		font-size: 10px;
+	}
+
+	.bbmcp-tool-example-code pre {
+		font-size: 10.5px;
+		padding: 10px;
+	}
+
+	/* Sidebar widgets */
+	.bbmcp-widget-header {
+		padding: 10px 12px;
+	}
+
+	.bbmcp-sysinfo-table td {
+		padding: 8px 0;
+		font-size: 11px;
+	}
+
+	.bbmcp-sysinfo-table td:first-child {
+		font-size: 10px;
+	}
+
+	.bbmcp-help-widget {
+		padding: 18px 14px;
+	}
+
+	.bbmcp-help-widget-features {
+		gap: 4px;
+	}
+
+	.bbmcp-help-feature {
+		font-size: 10px;
+		padding: 2px 8px;
+	}
 }
