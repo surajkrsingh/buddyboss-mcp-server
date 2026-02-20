@@ -4,6 +4,14 @@ A WordPress plugin that exposes your [BuddyBoss Platform](https://www.buddyboss.
 
 > **Upload ZIP, activate, connect** — no Node.js, no Composer, no CLI required on the server.
 
+### Admin Dashboard
+
+![BuddyBoss MCP Server — Admin Dashboard](assets/screenshots/admin-dashboard.png)
+
+### Live Demo — Fetching BuddyBoss Groups via Claude Code
+
+![Claude Code fetching BuddyBoss groups](assets/screenshots/claude-code-usage.png)
+
 ---
 
 ## What Is This?
