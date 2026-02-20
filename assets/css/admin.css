@@ -160,6 +160,7 @@
 	max-width: 1440px;
 	margin: 0 auto;
 	padding: 20px 20px 20px 5px;
+	overflow-x: hidden;
 }
 
 /* ---------------------------------------------------------------
@@ -174,6 +175,7 @@
 .bbmcp-main {
 	flex: 1;
 	min-width: 0;
+	overflow: hidden;
 }
 
 .bbmcp-sidebar {
@@ -314,12 +316,15 @@
    Status card — metric row
    --------------------------------------------------------------- */
 .bbmcp-status-grid {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	display: flex;
+	flex-wrap: wrap;
 	gap: 12px;
 }
 
-/* Status grid stacking moved to responsive section at bottom */
+.bbmcp-status-grid > .bbmcp-status-item {
+	flex: 1 1 0%;
+	min-width: 160px;
+}
 
 .bbmcp-status-item {
 	display: flex;
@@ -1449,6 +1454,7 @@
 	.bbmcp-settings {
 		padding: 16px 12px 16px 2px;
 	}
+
 }
 
 /* Mobile */
@@ -1489,21 +1495,32 @@
 		align-items: flex-start;
 		gap: 6px;
 		padding: 10px 12px;
+		overflow: hidden;
 	}
 
 	.bbmcp-endpoint-url {
 		width: 100%;
 		min-width: 0;
+		overflow: hidden;
 	}
 
 	.bbmcp-endpoint-url code {
 		font-size: 11px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: block;
+		max-width: calc(100% - 36px);
 	}
 
-	/* Status grid */
+	/* Status grid — stack on mobile */
 	.bbmcp-status-grid {
-		grid-template-columns: 1fr;
+		flex-direction: column;
 		gap: 8px;
+	}
+
+	.bbmcp-status-grid > .bbmcp-status-item {
+		min-width: 0;
 	}
 
 	/* Card header */
@@ -1560,11 +1577,14 @@
 		padding: 14px 12px;
 		margin: 12px 10px;
 		border-radius: 6px;
+		overflow-x: auto;
 	}
 
 	.bbmcp-code-block pre {
 		font-size: 11px;
 		line-height: 1.6;
+		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 
 	.bbmcp-copy-btn {
@@ -1575,6 +1595,15 @@
 		width: fit-content;
 	}
 
+	/* Cards */
+	.bbmcp-card {
+		overflow: hidden;
+	}
+
+	.bbmcp-tabs {
+		overflow-x: hidden;
+	}
+
 	/* Notes & tips */
 	.bbmcp-compat-note,
 	.bbmcp-security-tip {
@@ -1582,10 +1611,18 @@
 		padding: 10px 12px;
 	}
 
+	.bbmcp-compat-note p,
+	.bbmcp-security-tip p {
+		word-break: break-word;
+		overflow-wrap: break-word;
+	}
+
 	.bbmcp-base64-helper {
 		margin: -4px 10px 12px;
 		padding: 8px 10px;
 		font-size: 11px;
+		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 
 	.bbmcp-base64-helper code {

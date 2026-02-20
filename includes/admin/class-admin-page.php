@@ -135,18 +135,23 @@ if ( ! class_exists( 'BuddyBossMCP\\Admin\\Admin_Page' ) ) {
 				return;
 			}
 
+			$css_file = BBMCP_PLUGIN_DIR . 'assets/css/admin.css';
+			$js_file  = BBMCP_PLUGIN_DIR . 'assets/js/admin.js';
+			$css_ver  = BBMCP_VERSION . '.' . ( file_exists( $css_file ) ? filemtime( $css_file ) : '' );
+			$js_ver   = BBMCP_VERSION . '.' . ( file_exists( $js_file ) ? filemtime( $js_file ) : '' );
+
 			wp_enqueue_style(
 				'bbmcp-admin',
 				BBMCP_PLUGIN_URL . 'assets/css/admin.css',
 				array( 'dashicons' ),
-				BBMCP_VERSION
+				$css_ver
 			);
 
 			wp_enqueue_script(
 				'bbmcp-admin',
 				BBMCP_PLUGIN_URL . 'assets/js/admin.js',
 				array(),
-				BBMCP_VERSION,
+				$js_ver,
 				true
 			);
 
