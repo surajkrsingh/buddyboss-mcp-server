@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: BuddyBoss MCP Server
- * Plugin URI:  https://developer.buddyboss.com/
+ * Plugin URI:  https://github.com/surajkrsingh/buddyboss-mcp-server
  * Description: Exposes an MCP (Model Context Protocol) server endpoint so AI-powered IDEs can manage your BuddyBoss platform via natural language.
  * Version:     1.0.0
- * Author:      BuddyBoss
- * Author URI:  https://www.buddyboss.com/
+ * Author:      Suraj Singh
+ * Author URI:  https://github.com/surajkrsingh
  * Text Domain: buddyboss-mcp-server
  * Domain Path: /languages
  * License:     GPLv2 or later
@@ -15,6 +15,11 @@
  *
  * @package BuddyBossMCP
  * @since   1.0.0
+ *
+ * Credits:
+ *  - BuddyBoss Platform (https://www.buddyboss.com/) — the community engine this plugin integrates with.
+ *  - Model Context Protocol (https://modelcontextprotocol.io/) — open standard by Anthropic.
+ *  - BuddyPress MCP (https://github.com/vapvarun/buddypress-mcp) — reference implementation by vapvarun.
  */
 
 // Exit if accessed directly.
