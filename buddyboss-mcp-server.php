@@ -19,6 +19,7 @@
  * Credits:
  *  - BuddyBoss Platform (https://www.buddyboss.com/) — the community engine this plugin integrates with.
  *  - Model Context Protocol (https://modelcontextprotocol.io/) — open standard by Anthropic.
+ *  - Claude Code (https://claude.ai/code) — AI-powered coding assistant by Anthropic, used to develop this plugin.
  *  - BuddyPress MCP (https://github.com/vapvarun/buddypress-mcp) — reference implementation by vapvarun.
  */
 

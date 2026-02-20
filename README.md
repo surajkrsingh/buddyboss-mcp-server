@@ -175,4 +175,5 @@ Built on top of the **[BuddyBoss Platform](https://www.buddyboss.com/)** — the
 
 - **[BuddyBoss](https://www.buddyboss.com/)** — Community platform powering this integration
 - **[Model Context Protocol](https://modelcontextprotocol.io/)** — Open standard by Anthropic
+- **[Claude Code](https://claude.ai/code)** — AI-powered coding assistant by Anthropic, used to develop this plugin
 - **[BuddyPress MCP](https://github.com/vapvarun/buddypress-mcp)** — Reference implementation by vapvarun
