@@ -50,14 +50,18 @@ if ( ! class_exists( 'BuddyBossMCP\\Internal_REST_Client' ) ) {
 			}
 
 			$original_user_id = get_current_user_id();
-			if ( $user_id > 0 && $user_id !== $original_user_id ) {
+			$switched         = $user_id > 0 && $user_id !== $original_user_id;
+
+			if ( $switched ) {
 				wp_set_current_user( $user_id );
 			}
 
-			$response = rest_do_request( $request );
-
-			if ( $user_id > 0 && $user_id !== $original_user_id ) {
-				wp_set_current_user( $original_user_id );
+			try {
+				$response = rest_do_request( $request );
+			} finally {
+				if ( $switched ) {
+					wp_set_current_user( $original_user_id );
+				}
 			}
 
 			if ( $response->is_error() ) {
