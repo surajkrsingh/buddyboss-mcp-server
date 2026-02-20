@@ -32,10 +32,12 @@ define( 'BBMCP_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 /**
  * Load the plugin after all plugins are loaded.
  *
+ * Verifies the minimum PHP version (7.4) before bootstrapping
+ * the Plugin singleton.
+ *
  * @since 1.0.0
  */
 function bbmcp_init() {
-	// Check PHP version.
 	if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 		add_action( 'admin_notices', 'bbmcp_php_version_notice' );
 		return;

@@ -63,7 +63,6 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 		 * @since 1.0.0
 		 */
 		protected function register_providers() {
-			// Core tools — always loaded.
 			$this->providers[] = new Tools\Members_Tools();
 			$this->providers[] = new Tools\Groups_Tools();
 			$this->providers[] = new Tools\Activity_Tools();
@@ -96,13 +95,11 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 				foreach ( $provider_tools as $tool ) {
 					$name = $tool['name'];
 
-					// Store internal reference for execution.
 					$this->tools[ $name ] = array(
 						'provider' => $tool['provider'],
 						'method'   => $tool['method'],
 					);
 
-					// Store clean definition for tools/list response.
 					$this->definitions[] = array(
 						'name'        => $tool['name'],
 						'description' => $tool['description'],

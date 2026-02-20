@@ -117,6 +117,10 @@ if ( ! class_exists( 'BuddyBossMCP\\REST_Controller' ) ) {
 		/**
 		 * Handle POST request (JSON-RPC message).
 		 *
+		 * Passes the raw body to the MCP server for processing.
+		 * JSON-RPC notifications (no `id`) return null and receive
+		 * a 202 Accepted response.
+		 *
 		 * @since 1.0.0
 		 *
 		 * @param \WP_REST_Request $request REST request.
@@ -128,7 +132,6 @@ if ( ! class_exists( 'BuddyBossMCP\\REST_Controller' ) ) {
 
 			$response = $this->mcp_server->handle_request( $body, $user_id );
 
-			// Notifications return null — respond with 202 Accepted.
 			if ( null === $response ) {
 				return new \WP_REST_Response( null, 202 );
 			}

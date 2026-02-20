@@ -26,6 +26,10 @@ if ( ! class_exists( 'BuddyBossMCP\\Internal_REST_Client' ) ) {
 		/**
 		 * Execute an internal REST API request.
 		 *
+		 * Dispatches a request via rest_do_request() (zero HTTP overhead),
+		 * temporarily switching the current user context when needed and
+		 * restoring it afterward.
+		 *
 		 * @since 1.0.0
 		 *
 		 * @param string $method  HTTP method (GET, POST, PUT, PATCH, DELETE).
@@ -35,35 +39,27 @@ if ( ! class_exists( 'BuddyBossMCP\\Internal_REST_Client' ) ) {
 		 * @return array|\WP_Error Response data or WP_Error.
 		 */
 		public function request( $method, $route, $params = array(), $user_id = 0 ) {
-			$request = new \WP_REST_Request( strtoupper( $method ), $route );
+			$method  = strtoupper( $method );
+			$request = new \WP_REST_Request( $method, $route );
 
-			// Set parameters based on method.
-			if ( 'GET' === strtoupper( $method ) ) {
+			if ( 'GET' === $method ) {
 				$request->set_query_params( $params );
 			} else {
 				$request->set_body_params( $params );
-			}
-
-			// Set content type for non-GET requests.
-			if ( 'GET' !== strtoupper( $method ) ) {
 				$request->set_header( 'Content-Type', 'application/json' );
 			}
 
-			// Switch user context if provided.
 			$original_user_id = get_current_user_id();
 			if ( $user_id > 0 && $user_id !== $original_user_id ) {
 				wp_set_current_user( $user_id );
 			}
 
-			// Execute the internal request.
 			$response = rest_do_request( $request );
 
-			// Restore original user context.
 			if ( $user_id > 0 && $user_id !== $original_user_id ) {
 				wp_set_current_user( $original_user_id );
 			}
 
-			// Check for errors.
 			if ( $response->is_error() ) {
 				return $response->as_error();
 			}

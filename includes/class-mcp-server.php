@@ -46,6 +46,11 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 		/**
 		 * Handle a JSON-RPC 2.0 request.
 		 *
+		 * Parses the raw JSON body, validates the protocol version,
+		 * and dispatches to the appropriate method handler. Per the
+		 * JSON-RPC 2.0 spec, requests without an `id` are notifications
+		 * and receive no response (returns null).
+		 *
 		 * @since 1.0.0
 		 *
 		 * @param string $request_body Raw JSON request body.
@@ -67,7 +72,6 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 			$params = isset( $request['params'] ) ? $request['params'] : array();
 			$id     = isset( $request['id'] ) ? $request['id'] : null;
 
-			// Notifications have no id — acknowledge without response.
 			if ( null === $id ) {
 				return null;
 			}
@@ -157,6 +161,11 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 		/**
 		 * Handle tools/call request.
 		 *
+		 * Resolves the tool name from the registry and invokes the
+		 * provider method. Validation errors (InvalidArgumentException)
+		 * are returned as MCP tool errors rather than protocol errors
+		 * so the AI client can self-correct.
+		 *
 		 * @since 1.0.0
 		 *
 		 * @param array $params  Request params containing name and arguments.
@@ -195,7 +204,6 @@ if ( ! class_exists( 'BuddyBossMCP\\MCP_Server' ) ) {
 					$id
 				);
 			} catch ( \InvalidArgumentException $e ) {
-				// Validation errors — return as tool error, not protocol error.
 				return $this->success_response(
 					array(
 						'content' => array(

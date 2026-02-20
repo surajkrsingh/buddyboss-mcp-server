@@ -270,6 +270,9 @@ if ( ! class_exists( 'BuddyBossMCP\\Tools\\Groups_Tools' ) ) {
 		/**
 		 * Create a group.
 		 *
+		 * The BuddyBoss REST API requires an explicit `creator_id` parameter;
+		 * it defaults to the authenticated user when not supplied.
+		 *
 		 * @since 1.0.0
 		 *
 		 * @param array $args    Tool arguments.
@@ -297,7 +300,6 @@ if ( ! class_exists( 'BuddyBossMCP\\Tools\\Groups_Tools' ) ) {
 				$params['enable_forum'] = $this->get_bool( $args, 'enable_forum' );
 			}
 
-			// BuddyBoss requires explicit creator_id for group creation.
 			$creator_id            = $this->get_int( $args, 'creator_id' );
 			$params['creator_id'] = $creator_id > 0 ? $creator_id : $user_id;
 
@@ -361,6 +363,9 @@ if ( ! class_exists( 'BuddyBossMCP\\Tools\\Groups_Tools' ) ) {
 		/**
 		 * List group members.
 		 *
+		 * The BuddyBoss REST API requires explicit `roles` to return results;
+		 * defaults to 'admin,mod,member' when none are specified.
+		 *
 		 * @since 1.0.0
 		 *
 		 * @param array $args    Tool arguments.
@@ -376,8 +381,7 @@ if ( ! class_exists( 'BuddyBossMCP\\Tools\\Groups_Tools' ) ) {
 				'per_page' => min( $this->get_int( $args, 'per_page', 20 ), 100 ),
 			);
 
-			$roles = $this->get_string( $args, 'roles' );
-			// BuddyBoss requires explicit roles to return members.
+			$roles           = $this->get_string( $args, 'roles' );
 			$params['roles'] = ! empty( $roles ) ? $roles : 'admin,mod,member';
 
 			$response = $this->rest_client->get(

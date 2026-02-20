@@ -159,6 +159,9 @@ if ( ! class_exists( 'BuddyBossMCP\\Tools\\Notifications_Tools' ) ) {
 		/**
 		 * Mark a notification as read or unread.
 		 *
+		 * Defaults to marking as read (`is_new = false`) when the
+		 * `is_new` parameter is not explicitly provided.
+		 *
 		 * @since 1.0.0
 		 *
 		 * @param array $args    Tool arguments.
@@ -174,7 +177,6 @@ if ( ! class_exists( 'BuddyBossMCP\\Tools\\Notifications_Tools' ) ) {
 			if ( isset( $args['is_new'] ) ) {
 				$params['is_new'] = $this->get_bool( $args, 'is_new' );
 			} else {
-				// Default: mark as read.
 				$params['is_new'] = false;
 			}
 

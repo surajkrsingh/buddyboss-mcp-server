@@ -109,6 +109,9 @@ if ( ! class_exists( 'BuddyBossMCP\\Plugin' ) ) {
 		/**
 		 * Include required files.
 		 *
+		 * Loads core classes, the tool base, admin page, and all
+		 * tool providers for the MCP server.
+		 *
 		 * @since 1.0.0
 		 */
 		private function includes() {
@@ -118,8 +121,6 @@ if ( ! class_exists( 'BuddyBossMCP\\Plugin' ) ) {
 			require_once BBMCP_PLUGIN_DIR . 'includes/class-internal-rest-client.php';
 			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-tool-base.php';
 			require_once BBMCP_PLUGIN_DIR . 'includes/admin/class-admin-page.php';
-
-			// Tool providers.
 			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-members-tools.php';
 			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-groups-tools.php';
 			require_once BBMCP_PLUGIN_DIR . 'includes/tools/class-activity-tools.php';
@@ -144,6 +145,9 @@ if ( ! class_exists( 'BuddyBossMCP\\Plugin' ) ) {
 		/**
 		 * Register WordPress hooks.
 		 *
+		 * Sets up REST routes, admin menus, and enables Application Passwords
+		 * on local/dev environments that lack HTTPS.
+		 *
 		 * @since 1.0.0
 		 */
 		private function setup_hooks() {
@@ -151,7 +155,6 @@ if ( ! class_exists( 'BuddyBossMCP\\Plugin' ) ) {
 			add_action( 'admin_menu', array( $this->admin, 'register_menu' ) );
 			add_action( 'admin_enqueue_scripts', array( $this->admin, 'enqueue_assets' ) );
 
-			// Allow Application Passwords on local/dev environments without HTTPS.
 			if ( $this->is_local_environment() ) {
 				add_filter( 'wp_is_application_passwords_available', '__return_true' );
 			}
@@ -169,17 +172,14 @@ if ( ! class_exists( 'BuddyBossMCP\\Plugin' ) ) {
 		private function is_local_environment() {
 			$site_url = site_url();
 
-			// LocalWP uses .local domains.
 			if ( false !== strpos( $site_url, '.local' ) ) {
 				return true;
 			}
 
-			// Standard localhost.
 			if ( false !== strpos( $site_url, 'localhost' ) || false !== strpos( $site_url, '127.0.0.1' ) ) {
 				return true;
 			}
 
-			// WordPress wp_get_environment_type() — available since WP 5.5.
 			if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
 				return true;
 			}
