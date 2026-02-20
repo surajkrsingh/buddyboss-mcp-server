@@ -67,6 +67,7 @@ if ( ! class_exists( 'BuddyBossMCP\\Tool_Registry' ) ) {
 			$this->providers[] = new Tools\Members_Tools();
 			$this->providers[] = new Tools\Groups_Tools();
 			$this->providers[] = new Tools\Activity_Tools();
+			$this->providers[] = new Tools\Messages_Tools();
 
 			/**
 			 * Filter the list of tool providers.
